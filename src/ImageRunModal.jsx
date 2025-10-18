@@ -18,7 +18,7 @@ import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex";
 import { Popover } from "@patternfly/react-core/dist/esm/components/Popover";
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import * as dockerNames from 'docker-names';
-
+import { Markdown } from './MarkdownViewer.jsx';
 import { ErrorNotification } from './Notification.jsx';
 import * as utils from './util.js';
 import * as client from './client.js';
@@ -92,32 +92,6 @@ location ^~ \${PATH}/ {
   );
 }
 
-/* ---------------- small README renderer ---------------- */
-
-function Inline({ text }) {
-  const tokens = [];
-  let i = 0;
-  const rx = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*|\*([^*]+)\*|_([^_]+)_/g;
-  let m;
-  while ((m = rx.exec(text))) {
-    const [full] = m;
-    if (m.index > i) tokens.push(text.slice(i, m.index));
-    if (m[1] && m[2]) {
-      tokens.push(<a key={`a-${m.index}`} href={m[2]} target="_blank" rel="noopener noreferrer">{m[1]}</a>);
-    } else if (m[3]) {
-      tokens.push(<code key={`code-${m.index}`} className="pf-v5-c-code">{m[3]}</code>);
-    } else if (m[4]) {
-      tokens.push(<strong key={`b-${m.index}`}>{m[4]}</strong>);
-    } else if (m[5]) {
-      tokens.push(<em key={`i-${m.index}`}>{m[5]}</em>);
-    } else if (m[6]) {
-      tokens.push(<em key={`i2-${m.index}`}>{m[6]}</em>);
-    }
-    i = m.index + full.length;
-  }
-  if (i < text.length) tokens.push(text.slice(i));
-  return <>{tokens}</>;
-}
 // ---- UTF-8 <-> Base64 helpers (browser + Node) ----
 export function utf8ToB64(str) {
   // Browser path
@@ -145,48 +119,6 @@ export function b64ToUtf8(b64) {
   return Buffer.from(b64, "base64").toString("utf8");
 }
 
-
-function Markdown({ source }) {
-  const lines = (source || "").replace(/\r\n?/g, "\n").split("\n");
-  const out = [];
-  let buf = [], list = null, fence = null;
-
-  const flushParagraph = () => {
-    if (buf.length) {
-      const text = buf.join(" ").trim();
-      if (text) out.push(<p key={`p-${out.length}`}><Inline text={text} /></p>);
-      buf = [];
-    }
-  };
-  const flushList = () => {
-    if (list && list.items.length) {
-      out.push(<ul key={`ul-${out.length}`}>{list.items.map((t, i) => <li key={`li-${out.length}-${i}`}><Inline text={t} /></li>)}</ul>);
-    }
-    list = null;
-  };
-  const flushFence = () => {
-    if (fence) {
-      out.push(<pre key={`pre-${out.length}`}><code>{fence.lines.join("\n")}</code></pre>);
-      fence = null;
-    }
-  };
-
-  for (const raw of lines) {
-    const line = raw;
-    if (fence) { if (/^```/.test(line)) flushFence(); else fence.lines.push(line); continue; }
-    const fm = line.match(/^```(\w+)?\s*$/); if (fm) { flushParagraph(); flushList(); fence = { lang:"", lines:[] }; continue; }
-    if (/^\s*$/.test(line)) { flushParagraph(); flushList(); continue; }
-    const hm = line.match(/^(#{1,6})\s+(.*)$/);
-    if (hm) { flushParagraph(); flushList(); const H = `h${hm[1].length}`; out.push(React.createElement(H, { key:`h-${out.length}` }, <Inline text={hm[2].trim()} />)); continue; }
-    const lm = line.match(/^\s*[-*+]\s+(.*)$/);
-    if (lm) { flushParagraph(); if (!list) list = { items: [] }; list.items.push(lm[1]); continue; }
-    buf.push(line.trim());
-  }
-  flushFence(); flushParagraph(); flushList();
-  return <div className="pf-v5-c-content">{out}</div>;
-}
-
-/* ---------------- README from labels (b64, single or chunked) ---------------- */
 
 // Replace $$ (escaped dollars) with $ when *loading* from labels
 function normalizeLoadedNginxBlock(txt = "") {
