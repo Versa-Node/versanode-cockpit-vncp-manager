@@ -1,13 +1,16 @@
-# cockpit-docker
+# VNCP Manager
 
-This is the [Cockpit](https://cockpit-project.org/) user interface for [docker
-containers](https://docker.io/). 
+This is the user interface for Versanode Container Applications (VNCP)
+
+<img src="docs/media/vncp-dashboard.png" alt="VersaNode Container Applications" width="100%"/>
+
+
 
 ## Technologies
 
  - cockpit-docker communicates to docker through its [REST API](https://docs.docker.com/engine/api/v1.43/).
 
- - This project is based on [cockpit-podman](https://github.com/cockpit-project/cockpit-podman), I ported as much as I could to the docker API, but not everything maps (e.g. pods) and not everything is ported yet.
+ - This project is based on [cockpit-docker](https://github.com/chabad360/cockpit-docker)
 
 # Development dependencies
 

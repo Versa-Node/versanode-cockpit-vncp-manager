@@ -18,15 +18,45 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 
+/**
+ * Safely quote a string for /bin/sh so it can be embedded in a single command line.
+ * - Always returns a single-quoted token (or "''" for empty).
+ * - Single quotes inside are represented as: '\''  (end, escaped quote, reopen)
+ *
+ * Examples:
+ *   shell_quote("abc")              -> 'abc'
+ *   shell_quote("a b")              -> 'a b'
+ *   shell_quote("a'b")              -> 'a'"'"'b'
+ *   shell_quote("")                 -> ''
+ */
+export function shell_quote(s) {
+    s = String(s ?? "");
+    if (s.length === 0) return "''";
+    // replace every ' with: '"'"'
+    return "'" + s.replace(/'/g, `'\"'\"'`) + "'";
+}
+
+/**
+ * Quote an array of args and join with spaces for a shell -c string.
+ * Accepts strings/numbers; ignores null/undefined.
+ */
+export function shell_quote_all(args) {
+    if (!Array.isArray(args)) args = [args];
+    return args
+        .filter(a => a !== undefined && a !== null)
+        .map(a => shell_quote(String(a)))
+        .join(" ");
+}
+
 // https://github.com/containers/podman/blob/main/libpod/define/containerstate.go
 // "Restarting" comes from special handling of restart case in Application.updateContainer()
 export const states = [_("Exited"), _("Paused"), _("Stopped"), _("Removing"), _("Configured"), _("Created"), _("Restart"), _("Running")];
 
-export const fallbackRegistries = ["docker.io", "quay.io"];
+export const fallbackRegistries = ["ghcr.io", "docker.io"];
 
 export function debug(...args) {
-    if (window.debugging === "all" || window.debugging?.includes("docker"))
-        console.debug("docker", ...args);
+    if (window.debugging === "all" || window.debugging?.includes("vncp"))
+        console.debug("vncp", ...args);
 }
 
 export function truncate_id(id) {

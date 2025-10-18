@@ -36,6 +36,74 @@
     }
 }
 
+/* Ensure the internal grid leaves room for the delete button column */
+.vncp-proxy-form .ct-list-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 140px min-content; /* last col for actions */
+  align-items: start;
+  column-gap: var(--pf-v5-global--spacer--md);
+}
+
+/* Make sure the action cell is placed in the last column and visible */
+.vncp-proxy-form .ct-list-actions {
+  justify-self: end;
+  align-self: center;
+}
+
+/* The PF textarea lives inside the editor; target the real <textarea> */
+.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input {
+  position: relative;
+  background: transparent !important;
+  border-color: transparent !important;
+
+  /* Hide glyphs everywhere */
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important; /* Safari/Chrome */
+  text-shadow: none !important;
+
+  /* Keep the caret visible */
+  caret-color: var(--pf-v5-global--Color--100) !important;
+
+  /* Remove extra visuals that can “paint” text */
+  box-shadow: none !important;
+  outline: 0 !important;
+
+  /* Prevent layout surprises; preview handles scroll */
+  resize: none !important;
+}
+
+/* Hide placeholder and selected text (selection can re-paint) */
+.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input::placeholder {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input::selection {
+  background: transparent !important;
+  color: transparent !important;
+}
+
+/* Autofill can force a text color on WebKit */
+.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input:-webkit-autofill {
+  -webkit-text-fill-color: transparent !important;
+  transition: background-color 9999s ease-out !important; /* hide yellow */
+}
+
+/* Windows High Contrast / forced-colors: tell UA not to remap colors */
+@media (forced-colors: active) {
+  .vncp-code-editor .vncp-code-preview {
+    forced-color-adjust: none;
+  }
+  .vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input {
+    forced-color-adjust: none;
+    color: transparent !important;
+    caret-color: CanvasText !important; /* keep caret visible */
+  }
+}
+
+
+
+
+
 // HACK: A local copy of pf-m-horizontal (as ct-m-horizontal),
 // but applied at the FormGroup level instead of Form
 @media (min-width: $pf-v5-global--breakpoint--md) {
