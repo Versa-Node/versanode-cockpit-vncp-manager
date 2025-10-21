@@ -90,58 +90,6 @@ const MIN = 60 * 1000;
 const isFresh = (ts, maxAgeMs) => ts && (now() - ts) < maxAgeMs;
 
 // -------------------- ORG LIST (GitHub Packages REST) --------------------
-async function fetchGhcrOrgPackagesViaSpawn({ bypassCache = false } = {}) {
-  if (!bypassCache && ghcrOrgCache.list && isFresh(ghcrOrgCache.at, 10 * MIN)) {
-    return ghcrOrgCache.list;
-  }
-
-  const script = `
-set -euo pipefail
-URL="https://api.github.com/orgs/${GH_ORG}/packages?package_type=container&per_page=100"
-HDR_ACCEPT="Accept: application/vnd.github+json"
-HDR_API="X-GitHub-Api-Version: 2022-11-28"
-UA="User-Agent: versanode-cockpit/1.0"
-TOKEN_FILE="/etc/versanode/github.token"
-
-try_curl() {
-  if [ -n "$1" ]; then
-    curl -fsSL -H "$HDR_ACCEPT" -H "$HDR_API" -H "$UA" -H "Authorization: Bearer $1" "$URL"
-  else
-    curl -fsSL -H "$HDR_ACCEPT" -H "$HDR_API" -H "$UA" "$URL"
-  fi
-}
-
-TOKEN=""
-if [ -r "$TOKEN_FILE" ]; then
-  TOKEN="$(tr -d '\\r\\n' < "$TOKEN_FILE")"
-fi
-
-set +e
-RESP="$(try_curl "$TOKEN")"
-EC=$?
-set -e
-if [ $EC -ne 0 ] || [ -z "$RESP" ]; then
-  echo "[]"
-else
-  echo "$RESP"
-fi
-`;
-  try {
-    const out = await cockpit.spawn(["bash", "-lc", script], { superuser: "require", err: "message" });
-    const pkgs = JSON.parse(out || "[]");
-    const normalized = (pkgs || []).map(p => ({
-      name: `ghcr.io/versa-node/${p.name}`,
-      description: (p.description || "").trim(),
-    }));
-    ghcrOrgCache.list = normalized;
-    ghcrOrgCache.at = now();
-    console.debug("[GHCR] Org packages fetched:", normalized.length);
-    return normalized;
-  } catch (e) {
-    console.warn("[GHCR] fetchGhcrOrgPackagesViaSpawn failed:", e?.message || e);
-    return [];
-  }
-}
 
 // -------------------- TOKEN (Registry v2) --------------------
 async function ghcrGetRegistryTokenViaSpawn(repo, { bypassCache = false } = {}) {
