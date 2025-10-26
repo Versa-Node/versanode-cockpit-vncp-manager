@@ -90,6 +90,95 @@ const MIN = 60 * 1000;
 const isFresh = (ts, maxAgeMs) => ts && (now() - ts) < maxAgeMs;
 
 // -------------------- ORG LIST (GitHub Packages REST) --------------------
+// -------------------- ORG LIST (GitHub Packages REST) --------------------
+async function fetchGhcrOrgPackagesViaSpawn({ bypassCache = false } = {}) {
+  if (!bypassCache && ghcrOrgCache.list && isFresh(ghcrOrgCache.at, 10 * MIN)) {
+    return ghcrOrgCache.list;
+  }
+
+  // Make sure GH_ORG exists in JS (not env). e.g. const GH_ORG = "versa-node";
+  if (!GH_ORG || typeof GH_ORG !== "string" || !GH_ORG.trim()) {
+    console.warn("[GHCR] GH_ORG not set in JS context");
+    return [];
+  }
+
+  const url = `https://api.github.com/orgs/${GH_ORG}/packages?package_type=container&per_page=100`;
+
+  const script = `
+set -euo pipefail
+URL="${url}"
+HDR_ACCEPT="Accept: application/vnd.github+json"
+HDR_API="X-GitHub-Api-Version: 2022-11-28"
+UA="User-Agent: versanode-cockpit/1.0"
+TOKEN_FILE="/etc/versanode/github.token"
+
+command -v curl >/dev/null 2>&1 || { echo "ERR: curl not installed" >&2; exit 97; }
+
+# Read token if present; strip CR/LF to avoid subtle parse issues
+TOKEN=""
+if [ -r "$TOKEN_FILE" ]; then
+  TOKEN="$(tr -d '\\r\\n' < "$TOKEN_FILE" || true)"
+fi
+
+# Make request; capture status + body separately
+tmp_body="$(mktemp)"
+http_code=000
+
+if [ -n "$TOKEN" ]; then
+  http_code="$(curl -sS -w '%{http_code}' -o "$tmp_body" \\
+    -H "$HDR_ACCEPT" -H "$HDR_API" -H "$UA" \\
+    -H "Authorization: Bearer $TOKEN" \\
+    "$URL" || true)"
+else
+  http_code="$(curl -sS -w '%{http_code}' -o "$tmp_body" \\
+    -H "$HDR_ACCEPT" -H "$HDR_API" -H "$UA" \\
+    "$URL" || true)"
+fi
+
+# On success (2xx), print body; otherwise print [] but also an error line to stderr
+case "$http_code" in
+  200|201|204)
+    cat "$tmp_body"
+    ;;
+  401|403)
+    echo "[]"
+    echo "ERR: HTTP $http_code from GitHub. Token missing or insufficient scope (need read:packages)." >&2
+    head -c 512 "$tmp_body" >&2 || true
+    ;;
+  404)
+    echo "[]"
+    echo "ERR: HTTP 404. Check org name (${GH_ORG}) and endpoint. URL: $URL" >&2
+    head -c 512 "$tmp_body" >&2 || true
+    ;;
+  *)
+    echo "[]"
+    echo "ERR: HTTP $http_code from GitHub." >&2
+    head -c 512 "$tmp_body" >&2 || true
+    ;;
+esac
+
+rm -f "$tmp_body"
+`;
+
+  try {
+    // require root, so it can read /etc/versanode/github.token even if 0600 root:root
+    const out = await cockpit.spawn(["bash", "-lc", script], { superuser: "require", err: "message" });
+    const pkgs = JSON.parse(out || "[]");
+    const normalized = (pkgs || []).map(p => ({
+      name: `ghcr.io/${GH_ORG}/${p.name}`,
+      description: (p.description || "").trim(),
+    }));
+    ghcrOrgCache.list = normalized;
+    ghcrOrgCache.at = now();
+    console.debug("[GHCR] Org packages fetched:", normalized.length);
+    return normalized;
+  } catch (e) {
+    console.warn("[GHCR] fetchGhcrOrgPackagesViaSpawn failed:", e?.message || e);
+    return [];
+  }
+}
+
+
 
 // -------------------- TOKEN (Registry v2) --------------------
 async function ghcrGetRegistryTokenViaSpawn(repo, { bypassCache = false } = {}) {
