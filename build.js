@@ -52,7 +52,10 @@ function notifyEndPlugin() {
 const context = await esbuild.context({
     ...!production ? { sourcemap: "linked" } : {},
     bundle: true,
-    entryPoints: ["./src/index.js"],
+    entryPoints: [
+    "./src/index.js",
+    "./src/pf6-alias.css"  
+  ],
     external: ['*.woff', '*.woff2', '*.jpg', '*.svg', '../../assets*'], // Allow external font files which live in ../../static/fonts
     legalComments: 'external', // Move all legal comments to a .LEGAL.txt file
     loader: { ".js": "jsx" },
