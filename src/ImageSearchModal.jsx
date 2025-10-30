@@ -787,7 +787,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
       <Form isHorizontal>
         {dialogError && <ErrorNotification errorMessage={dialogError} errorDetail={dialogErrorDetail} />}
 
-        <Flex spaceItems={{ default: 'inlineFlex', modifier: 'spaceItemsXl' }}>
+        <Flex className="pf-v6-u-display-inline-flex" spaceItems={{ default: 'spaceItemsXl' }}>
           <FormGroup fieldId="search-image-dialog-name" label={_("Search for")}>
             <TextInput
               id="search-image-dialog-name"

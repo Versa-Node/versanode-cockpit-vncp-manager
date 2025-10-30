@@ -161,10 +161,25 @@ const LiveStats = ({ container, mode /* "cpu" | "mem" */ }) => {
   };
 
   const calcMemText = (v) => {
-    const usage = Math.max(0, (v?.memory_stats?.usage ?? 0) - (v?.memory_stats?.stats?.cache ?? 0));
-    const limit = v?.memory_stats?.limit ?? 0;
+    const ms = v?.memory_stats || {};
+    const st = ms.stats || {};
+
+    // cgroup v1: cache; cgroup v2: inactive_file (or total_inactive_file)
+    const cacheLike =
+      (st.cache ?? st.inactive_file ?? st.total_inactive_file ?? 0);
+
+    // Some engines use usage_in_bytes
+    const rawUsage = (ms.usage ?? ms.usage_in_bytes ?? 0);
+
+    // Keep non-negative
+    const usage = Math.max(0, rawUsage - cacheLike);
+
+    // Limit may be 0/undefined or live under limit/max_usage on some engines
+    const limit = (ms.limit ?? ms.max_usage ?? 0);
+
     return limit > 0 ? `${fmtBytes(usage)} / ${fmtBytes(limit)}` : fmtBytes(usage);
   };
+
 
   const paint = (stats) => {
     const cpu = calcCpuPercent(stats);

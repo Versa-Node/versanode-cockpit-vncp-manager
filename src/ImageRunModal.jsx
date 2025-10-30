@@ -1648,9 +1648,9 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
             </Tab>
 
             {/* Integration */}
-            <Tab eventKey={2} title={<TabTitleText>{_("Integration")}</TabTitleText>} id="create-image-dialog-tab-integration" className="pf-v5-c-form">
+            <Tab eventKey={2} title={<TabTitleText>{_("Integration")}</TabTitleText>} id="create-image-dialog-tab-integration" className="pf-v6-c-form">
               {this.state.prefillLoading && (
-                <div className="pf-v5-c-helper-text pf-m-inline">
+                <div className="pf-v6-c-helper-text pf-m-inline">
                   {_("Loading defaults from image…")}
                 </div>
               )}
