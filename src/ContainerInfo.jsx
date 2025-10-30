@@ -35,7 +35,7 @@ function Inline({ text }) {
     } else if (m[3]) {
       // `code`
       tokens.push(
-        <code key={`code-${m.index}`} className="pf-v5-c-code">
+        <code key={`code-${m.index}`} className="pf-v6-c-code">
           {m[3]}
         </code>
       );
@@ -167,7 +167,7 @@ function Markdown({ source }) {
   flushList();
 
   // PatternFly prose styles
-  return <div className="pf-v5-c-content">{out}</div>;
+  return <div className="pf-v6-c-content">{out}</div>;
 }
 
 /* --------------------------- ContainerInfo --------------------------- */
@@ -213,15 +213,15 @@ export default function ContainerInfo({ container, health }) {
   if (loading)
     return (
       <div
-        className="pf-v5-c-skeleton"
+        className="pf-v6-c-skeleton"
         style={{ height: 16, width: 160, margin: "8px 0" }}
       />
     );
 
   if (err && !md)
-    return <div className="pf-v5-c-helper-text pf-m-error">{err}</div>;
+    return <div className="pf-v6-c-helper-text pf-m-error">{err}</div>;
 
-  if (!md) return <div className="pf-v5-c-helper-text">{_("No README found.")}</div>;
+  if (!md) return <div className="pf-v6-c-helper-text">{_("No README found.")}</div>;
 
   return (
     <div className="vncp-readme">

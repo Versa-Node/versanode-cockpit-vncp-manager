@@ -388,7 +388,7 @@ function ProxyMapRow(props) {
             aria-label={_("Variables help")}
             enableFlip
             bodyContent={
-              <div className="pf-v5-c-content">
+              <div className="pf-v6-c-content">
                 <p>{_("You can use these variables; the host generator will substitute them:")}</p>
                 <ul>
                   <li><code>${"{SLUG}"}</code></li>
@@ -400,7 +400,7 @@ function ProxyMapRow(props) {
                 <p>{_("Do not include server{} or http{}; this snippet is placed inside a shared server block.")}</p>
               </div>
             }>
-            <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+            <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
               <OutlinedQuestionCircleIcon />
             </button>
           </Popover>
@@ -1303,21 +1303,21 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
     const dashboards = buildDashboardLinks(this.state.proxies || []);
     dbg("vncp: render proxies value =", this.state.proxies);
     const infoBody = (
-      <div style={{ padding: "var(--pf-v5-global--spacer--md)" }}>
+      <div style={{ padding: "var(--pf-v6-global--spacer--md)" }}>
         {this.state.readmeLoading && (
-          <div className="pf-v5-c-skeleton" style={{height:16, width:200, margin:"8px 0"}} />
+          <div className="pf-v6-c-skeleton" style={{height:16, width:200, margin:"8px 0"}} />
         )}
         {!this.state.readmeLoading && this.state.readmeError && !this.state.readmeMd && (
-          <div className="pf-v5-c-helper-text pf-m-error">{this.state.readmeError}</div>
+          <div className="pf-v6-c-helper-text pf-m-error">{this.state.readmeError}</div>
         )}
         {!this.state.readmeLoading && this.state.readmeMd && (
           <div className="vncp-readme" style={{ marginBottom: 12 }}><Markdown source={this.state.readmeMd} /></div>
         )}
         {/* Dashboard links derived from proxies */}
         <div>
-          <div className="pf-v5-c-title pf-m-md" style={{ margin: "8px 0" }}>{_("Dashboards")}</div>
+          <div className="pf-v6-c-title pf-m-md" style={{ margin: "8px 0" }}>{_("Dashboards")}</div>
           {dashboards.length === 0 ? (
-            <div className="pf-v5-c-helper-text">{_("No dashboards defined (add proxy slugs in Details tab).")}</div>
+            <div className="pf-v6-c-helper-text">{_("No dashboards defined (add proxy slugs in Details tab).")}</div>
           ) : (
             <ul style={{ paddingLeft: 18, margin: 0 }}>
               {dashboards.map(d => (
@@ -1395,12 +1395,12 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
 
           <Tabs activeKey={activeTabKey} onSelect={this.handleTabClick}>
             {/* Info */}
-            <Tab eventKey={0} title={<TabTitleText>{_("Info")}</TabTitleText>} className="pf-v5-c-form pf-m-horizontal">
+            <Tab eventKey={0} title={<TabTitleText>{_("Info")}</TabTitleText>} className="pf-v6-c-form pf-m-horizontal">
               {infoBody}
             </Tab>
 
             {/* Details */}
-            <Tab eventKey={1} title={<TabTitleText>{_("Details")}</TabTitleText>} className="pf-v5-c-form">
+            <Tab eventKey={1} title={<TabTitleText>{_("Details")}</TabTitleText>} className="pf-v6-c-form">
               <FormGroup
                 fieldId="create-image-image-select-typeahead"
                 label={_("Image")}
@@ -1416,7 +1416,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                         <FlexItem>{cockpit.format(_("GHCR (versa-node): $0"), "versa-node/<repo> or ghcr.io/versa-node/<repo>")}</FlexItem>
                       </Flex>
                     }>
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1568,7 +1568,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                     enableFlip
                     bodyContent={_("CPU shares determine the priority of running containers. Default priority is 1024. A higher number prioritizes this container. A lower number decreases priority.")}
                   >
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1608,7 +1608,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                           enableFlip
                           bodyContent={_("Restart policy to follow when containers exit.")}
                         >
-                          <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                          <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                             <OutlinedQuestionCircleIcon />
                           </button>
                         </Popover>
@@ -1708,7 +1708,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
             </Tab>
 
             {/* Health check */}
-            <Tab eventKey={3} title={<TabTitleText>{_("Health check")}</TabTitleText>} id="create-image-dialog-tab-healthcheck" className="pf-v5-c-form pf-m-horizontal">
+            <Tab eventKey={3} title={<TabTitleText>{_("Health check")}</TabTitleText>} id="create-image-dialog-tab-healthcheck" className="pf-v6-c-form pf-m-horizontal">
               <FormGroup fieldId='run-image-dialog-healthcheck-command' label={_("Command")}>
                 <TextInput
                   id='run-image-dialog-healthcheck-command'
@@ -1735,7 +1735,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                     enableFlip
                     bodyContent={_("Interval how often health check is run.")}
                   >
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1767,7 +1767,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                     enableFlip
                     bodyContent={_("The maximum time allowed to complete the health check before an interval is considered failed.")}
                   >
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1799,7 +1799,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                     enableFlip
                     bodyContent={_("The initialization time needed for a container to bootstrap.")}
                   >
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1831,7 +1831,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                     enableFlip
                     bodyContent={_("The number of retries allowed before a healthcheck is considered to be unhealthy.")}
                   >
-                    <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                    <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                       <OutlinedQuestionCircleIcon />
                     </button>
                   </Popover>
@@ -1863,7 +1863,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
                       enableFlip
                       bodyContent={_("Action to take once the container transitions to an unhealthy state.")}
                     >
-                      <button onClick={e => e.preventDefault()} className="pf-v5-c-form__group-label-help">
+                      <button onClick={e => e.preventDefault()} className="pf-v6-c-form__group-label-help">
                         <OutlinedQuestionCircleIcon />
                       </button>
                     </Popover>

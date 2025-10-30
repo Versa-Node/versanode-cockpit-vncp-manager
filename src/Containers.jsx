@@ -540,7 +540,7 @@ class Containers extends React.Component {
                                  onAddNotification={this.props.onAddNotification}
                                  localImages={localImages}
                                  updateContainer={this.props.updateContainer} />,
-        props: { className: "pf-v5-c-table__action" }
+        props: { className: "pf-v6-c-table__action" }
       });
     } else {
       columns.push({ title: null });

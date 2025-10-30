@@ -1,9 +1,9 @@
-.docker-search .pf-v5-c-modal-box__body {
+.docker-search .pf-v6-c-modal-box__body {
     display: grid;
     grid-auto-flow: row;
     overflow: hidden;
     grid-template-rows: auto auto 1fr;
-    grid-gap: var(--pf-v5-global--spacer--sm);
+    grid-gap: var(--pf-v6-global--spacer--sm);
 }
 
 .image-list-item {
@@ -12,11 +12,11 @@
 }
 
 .image-list-item + .image-list-item {
-    border-block-start: 1px solid var(--pf-v5-global--BorderColor--200);
+    border-block-start: 1px solid var(--pf-v6-global--BorderColor--200);
 }
 
 .image-list-item > .image-name {
-    color: var(--pf-v5-global--Color--100);
+    color: var(--pf-v6-global--Color--100);
 }
 
 @media (min-width: 768px) {
@@ -43,17 +43,17 @@
 }
 
 .image-search-tag-form {
-    margin-block-end: var(--pf-v5-global--spacer--md);
+    margin-block-end: var(--pf-v6-global--spacer--md);
 }
 
-.docker-search .pf-v5-c-modal-box__footer {
+.docker-search .pf-v6-c-modal-box__footer {
     display: initial;
 }
 
-.docker-search .pf-v5-c-data-list {
+.docker-search .pf-v6-c-data-list {
     overflow-y: auto;
 }
 
-.docker-search .pf-v5-l-flex .pf-v5-c-form__group:nth-child(2) {
-    grid-template-columns: 2rem var(--pf-v5-c-form--m-horizontal__group-control--md--GridColumnWidth);
+.docker-search .pf-v6-l-flex .pf-v6-c-form__group:nth-child(2) {
+    grid-template-columns: 2rem var(--pf-v6-c-form--m-horizontal__group-control--md--GridColumnWidth);
 }

@@ -1,10 +1,10 @@
 @import "global-variables";
 
 // Ensure the width fits within the screen boundaries (with padding on the sides)
-.pf-v5-c-select__menu {
+.pf-v6-c-select__menu {
     // 3xl is the left+right padding for an iPhone SE;
     // this works on other screen sizes as well
-    max-inline-size: calc(100vw - var(--pf-v5-global--spacer--3xl));
+    max-inline-size: calc(100vw - var(--pf-v6-global--spacer--3xl));
 }
 
 // Make sure the footer is visible with more then 5 results.
@@ -16,22 +16,22 @@
 }
 
 // Fix the dot next to spinner: https://github.com/patternfly/patternfly-react/issues/6383
-.pf-v5-c-select__list-item.pf-m-loading {
+.pf-v6-c-select__list-item.pf-m-loading {
     list-style-type: none;
 }
 
 .image-search-footer {
     flex-wrap: wrap;
 
-    .pf-v5-c-toggle-group__text {
+    .pf-v6-c-toggle-group__text {
         word-wrap: break-word;
     }
 }
 
  // PF4 does not yet support multiple form fields for the same label
-.ct-input-group-spacer-sm.pf-v5-l-flex {
+.ct-input-group-spacer-sm.pf-v6-l-flex {
     // Limit width for select entries and inputs in the input groups otherwise they take up the whole space
-    > .pf-v5-c-select, .pf-v5-c-form-control:not(.pf-v5-c-select__toggle-typeahead) {
+    > .pf-v6-c-select, .pf-v6-c-form-control:not(.pf-v6-c-select__toggle-typeahead) {
       max-inline-size: 8ch;
     }
 }
@@ -41,7 +41,7 @@
   display: grid;
   grid-template-columns: minmax(220px, 1fr) 140px min-content; /* last col for actions */
   align-items: start;
-  column-gap: var(--pf-v5-global--spacer--md);
+  column-gap: var(--pf-v6-global--spacer--md);
 }
 
 /* Make sure the action cell is placed in the last column and visible */
@@ -51,7 +51,7 @@
 }
 
 /* The PF textarea lives inside the editor; target the real <textarea> */
-.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input {
+.vncp-code-editor textarea.pf-v6-c-form-control.vncp-code-input {
   position: relative;
   background: transparent !important;
   border-color: transparent !important;
@@ -62,7 +62,7 @@
   text-shadow: none !important;
 
   /* Keep the caret visible */
-  caret-color: var(--pf-v5-global--Color--100) !important;
+  caret-color: var(--pf-v6-global--Color--100) !important;
 
   /* Remove extra visuals that can “paint” text */
   box-shadow: none !important;
@@ -74,17 +74,17 @@
 
 
 /* Hide placeholder and selected text (selection can re-paint) */
-.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input::placeholder {
+.vncp-code-editor textarea.pf-v6-c-form-control.vncp-code-input::placeholder {
   color: transparent !important;
   -webkit-text-fill-color: transparent !important;
 }
-.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input::selection {
+.vncp-code-editor textarea.pf-v6-c-form-control.vncp-code-input::selection {
   background: transparent !important;
   color: transparent !important;
 }
 
 /* Autofill can force a text color on WebKit */
-.vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input:-webkit-autofill {
+.vncp-code-editor textarea.pf-v6-c-form-control.vncp-code-input:-webkit-autofill {
   -webkit-text-fill-color: transparent !important;
   transition: background-color 9999s ease-out !important; /* hide yellow */
 }
@@ -94,7 +94,7 @@
   .vncp-code-editor .vncp-code-preview {
     forced-color-adjust: none;
   }
-  .vncp-code-editor textarea.pf-v5-c-form-control.vncp-code-input {
+  .vncp-code-editor textarea.pf-v6-c-form-control.vncp-code-input {
     forced-color-adjust: none;
     color: transparent !important;
     caret-color: CanvasText !important; /* keep caret visible */
@@ -107,11 +107,11 @@
 
 // HACK: A local copy of pf-m-horizontal (as ct-m-horizontal),
 // but applied at the FormGroup level instead of Form
-@media (min-width: $pf-v5-global--breakpoint--md) {
-    .pf-v5-c-form__group.ct-m-horizontal {
+@media (min-width: $pf-v6-global--breakpoint--md) {
+    .pf-v6-c-form__group.ct-m-horizontal {
         display: grid;
-        grid-column-gap: var(--pf-v5-c-form--m-horizontal__group-label--md--GridColumnGap);
-        grid-template-columns: var(--pf-v5-c-form--m-horizontal__group-label--md--GridColumnWidth) var(--pf-v5-c-form--m-horizontal__group-control--md--GridColumnWidth);
+        grid-column-gap: var(--pf-v6-c-form--m-horizontal__group-label--md--GridColumnGap);
+        grid-template-columns: var(--pf-v6-c-form--m-horizontal__group-label--md--GridColumnWidth) var(--pf-v6-c-form--m-horizontal__group-control--md--GridColumnWidth);
     }
 }
 
@@ -135,14 +135,14 @@
 
 .md-codeblock {
   position: relative;
-  background: var(--pf-v5-global--BackgroundColor--200);
-  border: 1px solid var(--pf-v5-global--BorderColor--100);
-  border-radius: var(--pf-v5-global--BorderRadius--sm);
+  background: var(--pf-v6-global--BackgroundColor--200);
+  border: 1px solid var(--pf-v6-global--BorderColor--100);
+  border-radius: var(--pf-v6-global--BorderRadius--sm);
   overflow: hidden;
 }
 .md-codeblock pre {
   margin: 0;
-  padding: var(--pf-v5-global--spacer--md);
+  padding: var(--pf-v6-global--spacer--md);
   overflow: auto;
   max-height: 40vh;
 }
@@ -151,13 +151,13 @@
   top: .25rem;
   right: .25rem;
   padding: .25rem .5rem;
-  border: 1px solid var(--pf-v5-global--BorderColor--100);
-  background: var(--pf-v5-global--BackgroundColor--100);
-  border-radius: var(--pf-v5-global--BorderRadius--sm);
+  border: 1px solid var(--pf-v6-global--BorderColor--100);
+  background: var(--pf-v6-global--BackgroundColor--100);
+  border-radius: var(--pf-v6-global--BorderRadius--sm);
   font-size: .75rem;
   cursor: pointer;
 }
-.md-copy-btn:hover { background: var(--pf-v5-global--BackgroundColor--200); }
+.md-copy-btn:hover { background: var(--pf-v6-global--BackgroundColor--200); }
 
 .md-img {
   max-width: 100%;
@@ -172,11 +172,11 @@
 .md-table th, .md-table td { white-space: nowrap; }
 
 .md-toc {
-  padding: var(--pf-v5-global--spacer--md);
-  border: 1px dashed var(--pf-v5-global--BorderColor--100);
-  border-radius: var(--pf-v5-global--BorderRadius--sm);
-  background: var(--pf-v5-global--BackgroundColor--100);
-  margin-bottom: var(--pf-v5-global--spacer--md);
+  padding: var(--pf-v6-global--spacer--md);
+  border: 1px dashed var(--pf-v6-global--BorderColor--100);
+  border-radius: var(--pf-v6-global--BorderRadius--sm);
+  background: var(--pf-v6-global--BackgroundColor--100);
+  margin-bottom: var(--pf-v6-global--spacer--md);
 }
 .md-toc__title { font-weight: 600; margin-bottom: .5rem; }
 .md-toc ul { list-style: none; margin: 0; padding: 0; }

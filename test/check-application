@@ -36,8 +36,8 @@ def docker_version(cls):
 
 
 def showImages(browser):
-    if browser.attr("#containers-images button.pf-v5-c-expandable-section__toggle", "aria-expanded") == 'false':
-        browser.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+    if browser.attr("#containers-images button.pf-v6-c-expandable-section__toggle", "aria-expanded") == 'false':
+        browser.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
 
 def checkImage(browser, name, owner):
@@ -159,15 +159,15 @@ class TestApplication(testlib.MachineCase):
 
     def performContainerAction(self, container, cmd):
         b = self.browser
-        b.click(f"#containers-containers tbody tr:contains('{container}') .pf-v5-c-menu-toggle")
-        b.click(f"#containers-containers tbody tr:contains('{container}') button.pf-v5-c-menu__item:contains({cmd})")
+        b.click(f"#containers-containers tbody tr:contains('{container}') .pf-v6-c-menu-toggle")
+        b.click(f"#containers-containers tbody tr:contains('{container}') button.pf-v6-c-menu__item:contains({cmd})")
 
     def getContainerAction(self, container, cmd):
-        return f"#containers-containers tbody tr:contains('{container}') button.pf-v5-c-menu__item:contains({cmd})"
+        return f"#containers-containers tbody tr:contains('{container}') button.pf-v6-c-menu__item:contains({cmd})"
 
     def toggleExpandedContainer(self, container):
         b = self.browser
-        b.click(f"#containers-containers tbody tr:contains('{container}') .pf-v5-c-table__toggle button")
+        b.click(f"#containers-containers tbody tr:contains('{container}') .pf-v6-c-table__toggle button")
 
     def getContainerAttr(self, container, key, selector=""):
         b = self.browser
@@ -197,14 +197,14 @@ class TestApplication(testlib.MachineCase):
         with self.browser.wait_timeout(30):
             try:
                 b.wait_not_in_text("#containers-containers", "Loading")
-                b.wait_not_present("#overview div.pf-v5-c-alert")
+                b.wait_not_present("#overview div.pf-v6-c-alert")
             except testlib.Error:
                 if system:
-                    b.click("#overview div.pf-v5-c-alert .pf-v5-c-alert__action > button:contains(Start)")
-                    b.wait_not_present("#overview div.pf-v5-c-alert")
+                    b.click("#overview div.pf-v6-c-alert .pf-v6-c-alert__action > button:contains(Start)")
+                    b.wait_not_present("#overview div.pf-v6-c-alert")
                 else:
-                    b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
-                    b.wait_not_present("#app .pf-v5-c-empty-state button")
+                    b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
+                    b.wait_not_present("#app .pf-v6-c-empty-state button")
 
     def waitPodRow(self, podName, present=False):
         if present:
@@ -219,9 +219,9 @@ class TestApplication(testlib.MachineCase):
                                    cmd=container["command"], state=container["state"], pod=podName)
         else:
             if self.browser.val("#containers-containers-filter") == "all":
-                self.browser.wait_in_text("#table-" + podName + " .pf-v5-c-empty-state", "No containers in this pod")
+                self.browser.wait_in_text("#table-" + podName + " .pf-v6-c-empty-state", "No containers in this pod")
             else:
-                self.browser.wait_in_text("#table-" + podName + " .pf-v5-c-empty-state",
+                self.browser.wait_in_text("#table-" + podName + " .pf-v6-c-empty-state",
                                           "No running containers in this pod")
 
     def waitContainerRow(self, container, present=True):
@@ -235,8 +235,8 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
 
         b.click(f"#pod-{podName}-{podOwner}-action-toggle")
-        b.click(f"ul.pf-v5-c-menu__list li > button.pod-action-{action.lower()}")
-        b.wait_not_present("ul.pf-v5-c-menu__list")
+        b.click(f"ul.pf-v6-c-menu__list li > button.pod-action-{action.lower()}")
+        b.wait_not_present("ul.pf-v6-c-menu__list")
 
     def getStartTime(self, container: str, *, auth: bool) -> str:
         # don't format the raw time strings from the API, force json format
@@ -336,10 +336,10 @@ class TestApplication(testlib.MachineCase):
         # self.waitRestart("test-pod-1-system", old_start, auth=True)
 
         # self.performPodAction("pod-1", "system", "Delete")
-        # b.click(".pf-v5-c-modal-box button:contains(Delete)")
+        # b.click(".pf-v6-c-modal-box button:contains(Delete)")
         # # Alert should be shown, that running pods need to be force deleted.
-        # b.wait_in_text(".pf-v5-c-modal-box__body .pf-v5-c-list", "test-pod-1-system")
-        # b.click(".pf-v5-c-modal-box button:contains('Force delete')")
+        # b.wait_in_text(".pf-v6-c-modal-box__body .pf-v6-c-list", "test-pod-1-system")
+        # b.click(".pf-v6-c-modal-box button:contains('Force delete')")
         # self.waitPodRow("pod-1", False)
 
         # HACK: there is some race here which steals the focus from the filter input and selects the page text instead
@@ -358,8 +358,8 @@ class TestApplication(testlib.MachineCase):
         # self.machine.execute("podman rm --force -t0 test-pod-2-system")
         # self.waitPodContainer("pod-2", [])
         # self.performPodAction("pod-2", "system", "Delete")
-        # b.wait_not_in_text(".pf-v5-c-modal-box__body", "test-pod-2-system")
-        # b.click(".pf-v5-c-modal-box button:contains('Delete')")
+        # b.wait_not_in_text(".pf-v6-c-modal-box__body", "test-pod-2-system")
+        # b.click(".pf-v6-c-modal-box button:contains('Delete')")
         # self.waitPodRow("pod-2", False)
 
     #     # Volumes / mounts
@@ -370,11 +370,11 @@ class TestApplication(testlib.MachineCase):
         # # Verify 1 port mapping
         # b.wait_in_text("#table-pod-3-title .pod-details-ports-btn", "1")
         # b.click("#table-pod-3-title .pod-details-ports-btn")
-        # b.wait_in_text(".pf-v5-c-popover__content", "0.0.0.0:9999 → 9999/tcp")
+        # b.wait_in_text(".pf-v6-c-popover__content", "0.0.0.0:9999 → 9999/tcp")
         # # Verify 1 mount
         # b.wait_in_text("#table-pod-3-title .pod-details-volumes-btn", "1")
         # b.click("#table-pod-3-title .pod-details-volumes-btn")
-        # b.wait_in_text(".pf-v5-c-popover__content", "/tmp ↔ /app")
+        # b.wait_in_text(".pf-v6-c-popover__content", "/tmp ↔ /app")
 
     def testBasicSystem(self):
         self._testBasic(True)
@@ -410,19 +410,19 @@ class TestApplication(testlib.MachineCase):
         b.click("#image-actions-dropdown")
         b.click("button:contains(Download new image)")
 
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Search for an image")')
-        b.wait_visible("div.pf-v5-c-modal-box footer button:contains(Download):disabled")
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Search for an image")')
+        b.wait_visible("div.pf-v6-c-modal-box footer button:contains(Download):disabled")
         b.wait_not_present("#as-user")
-        b.click(".pf-v5-c-modal-box button:contains('Cancel')")
-        b.wait_not_present('div.pf-v5-c-modal-box header:contains("Search for an image")')
+        b.click(".pf-v6-c-modal-box button:contains('Cancel')")
+        b.wait_not_present('div.pf-v6-c-modal-box header:contains("Search for an image")')
 
         # Gain privileges
         b.become_superuser(passwordless=self.machine.image == "rhel4edge")
 
         # We are notified that we can also start the system one
-        b.wait_in_text("#overview div.pf-v5-c-alert .pf-v5-c-alert__title", "Docker service is available")
-        b.click("#overview div.pf-v5-c-alert .pf-v5-c-alert__action > button:contains(Start)")
-        b.wait_not_present("#overview div.pf-v5-c-alert .pf-v5-c-alert__title")
+        b.wait_in_text("#overview div.pf-v6-c-alert .pf-v6-c-alert__title", "Docker service is available")
+        b.click("#overview div.pf-v6-c-alert .pf-v6-c-alert__action > button:contains(Start)")
+        b.wait_not_present("#overview div.pf-v6-c-alert .pf-v6-c-alert__title")
 
         checkImage(b, IMG_REGISTRY, "system")
         checkImage(b, IMG_REGISTRY, "admin")
@@ -437,11 +437,11 @@ class TestApplication(testlib.MachineCase):
         # Also user selection in image download should be visible
         b.click("#image-actions-dropdown")
         b.click("button:contains(Download new image)")
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Search for an image")')
-        b.wait_visible("div.pf-v5-c-modal-box footer button:contains(Download):disabled")
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Search for an image")')
+        b.wait_visible("div.pf-v6-c-modal-box footer button:contains(Download):disabled")
         b.wait_visible("#as-user")
-        b.click(".pf-v5-c-modal-box button:contains('Cancel')")
-        b.wait_not_present('div.pf-v5-c-modal-box header:contains("Search for an image")')
+        b.click(".pf-v6-c-modal-box button:contains('Cancel')")
+        b.wait_not_present('div.pf-v6-c-modal-box header:contains("Search for an image")')
 
         # Check that when we filter only system stuff an then drop privileges that we show user stuff
         b.set_val("#containers-containers-owner", "system")
@@ -459,27 +459,27 @@ class TestApplication(testlib.MachineCase):
         # Check showing of entrypoint
         b.click("#containers-containers-create-container-btn")
         b.click("#create-image-image-select-typeahead")
-        b.click(f'button.pf-v5-c-select__menu-item:contains("{IMG_REGISTRY}")')
+        b.click(f'button.pf-v6-c-select__menu-item:contains("{IMG_REGISTRY}")')
         b.wait_val("#run-image-dialog-command", '/etc/docker/registry/config.yml')
         b.wait_text("#run-image-dialog-entrypoint", '/entrypoint.sh')
 
         # Deleting image will cleanup both command and entrypoint
-        b.click("button.pf-v5-c-select__toggle-clear")
+        b.click("button.pf-v6-c-select__toggle-clear")
         b.wait_val("#run-image-dialog-command", '')
         b.wait_not_present("#run-image-dialog-entrypoint")
 
         # Edited command will not be cleared
         b.click("#create-image-image-select-typeahead")
-        b.click(f'button.pf-v5-c-select__menu-item:contains("{IMG_REGISTRY}")')
+        b.click(f'button.pf-v6-c-select__menu-item:contains("{IMG_REGISTRY}")')
         b.wait_val("#run-image-dialog-command", '/etc/docker/registry/config.yml')
         b.set_input_text("#run-image-dialog-command", '/etc/docker/registry/config.yaml')
-        b.click("button.pf-v5-c-select__toggle-clear")
+        b.click("button.pf-v6-c-select__toggle-clear")
         b.wait_not_present("#run-image-dialog-entrypoint")
         b.wait_val("#run-image-dialog-command", '/etc/docker/registry/config.yaml')
 
         # Setting a new image will still keep the old command and not prefill it
         b.click("#create-image-image-select-typeahead")
-        b.click(f'button.pf-v5-c-select__menu-item:contains({IMG_ALPINE})')
+        b.click(f'button.pf-v6-c-select__menu-item:contains({IMG_ALPINE})')
         b.wait_visible("#run-image-dialog-pull-latest-image")
         b.wait_val("#run-image-dialog-command", '/etc/docker/registry/config.yaml')
 
@@ -496,7 +496,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#app")
 
         # `User Service is also available` banner should not be present
-        b.wait_not_present("#overview div.pf-v5-c-alert")
+        b.wait_not_present("#overview div.pf-v6-c-alert")
         # There should not be any duplicate images listed
         # The "busybox" and "alpine" images have been deleted by _testBasic.
         showImages(b)
@@ -508,7 +508,7 @@ class TestApplication(testlib.MachineCase):
         # https://github.com/cockpit-project/cockpit-podman/pull/891
         b.click("#containers-containers-create-container-btn")
         b.set_input_text("#create-image-image-select-typeahead", "registry")
-        b.wait_visible('button.pf-v5-c-select__menu-item:contains("registry")')
+        b.wait_visible('button.pf-v6-c-select__menu-item:contains("registry")')
 
     def testBasicUser(self):
         self._testBasic(False)
@@ -517,7 +517,7 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
 
         def clickDeleteImage(image_sel):
-            b.click(f'{image_sel} .pf-v5-c-menu-toggle')
+            b.click(f'{image_sel} .pf-v6-c-menu-toggle')
             b.click(image_sel + " button.btn-delete")
 
         if not auth:
@@ -570,13 +570,13 @@ class TestApplication(testlib.MachineCase):
         # show image listing toggle
         hello_sel = f"#containers-images tbody tr[data-row-id=\"{images[IMG_HELLO_LATEST]}{auth}\"]".lower()
         b.wait_visible(hello_sel)
-        b.click(hello_sel + " td.pf-v5-c-table__toggle button")
-        b.click(hello_sel + " .pf-v5-c-menu-toggle")
+        b.click(hello_sel + " td.pf-v6-c-table__toggle button")
+        b.click(hello_sel + " .pf-v6-c-menu-toggle")
         b.wait_visible(hello_sel + " button.btn-delete")
         b.wait_in_text("#containers-images tbody.pf-m-expanded tr .image-details:first-child", "Command/run.sh")
         # Show history
-        b.click("#containers-images tbody.pf-m-expanded .pf-v5-c-tabs__list li:nth-child(2) button")
-        first_row_sel = "#containers-images .pf-v5-c-table__expandable-row.pf-m-expanded tbody:first-of-type"
+        b.click("#containers-images tbody.pf-m-expanded .pf-v6-c-tabs__list li:nth-child(2) button")
+        first_row_sel = "#containers-images .pf-v6-c-table__expandable-row.pf-m-expanded tbody:first-of-type"
         b.wait_in_text(f"{first_row_sel} td[data-label=\"ID\"]",
                        images[IMG_HELLO_LATEST][:12])
         created_sel = f"{first_row_sel} td[data-label=\"Created\"]"
@@ -586,7 +586,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(f"{created_sel}", "COPY")
         b.wait_in_text(f"{created_sel}", "in /test2.txt")
         # initial (first) layer
-        last_row_sel = "#containers-images .pf-v5-c-table__expandable-row.pf-m-expanded tbody:last-of-type"
+        last_row_sel = "#containers-images .pf-v6-c-table__expandable-row.pf-m-expanded tbody:last-of-type"
         b.wait_in_text(f"{last_row_sel} td[data-label=\"Created by\"]", "COPY")
 
         self.execute(auth, f"docker rmi {IMG_HELLO_LATEST}")
@@ -703,7 +703,7 @@ class TestApplication(testlib.MachineCase):
         self.execute(auth, f"docker tag {IMG_BUSYBOX} {IMG_BUSYBOX}:4")
 
         busybox_sel = f"#containers-images tbody tr[data-row-id=\"{images[IMG_BUSYBOX_LATEST]}{auth}\"]".lower()
-        b.click(busybox_sel + " td.pf-v5-c-table__toggle button")
+        b.click(busybox_sel + " td.pf-v6-c-table__toggle button")
 
         b.wait_in_text(busybox_sel + " + tr", f"{IMG_BUSYBOX}:1")
         b.wait_in_text(busybox_sel + " + tr", f"{IMG_BUSYBOX}:2")
@@ -711,10 +711,10 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(busybox_sel + " + tr", f"{IMG_BUSYBOX}:4")
 
         clickDeleteImage(busybox_sel)
-        self.assertTrue(b.get_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']"))
-        b.set_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX}:1']", True)
-        b.set_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX}:3']", True)
-        b.set_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']", False)
+        self.assertTrue(b.get_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']"))
+        b.set_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX}:1']", True)
+        b.set_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX}:3']", True)
+        b.set_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']", False)
         self.confirm_modal("Delete")
         b.wait_in_text(busybox_sel + " + tr", f"{IMG_BUSYBOX_LATEST}")
         b.wait_in_text(busybox_sel + " + tr", f"{IMG_BUSYBOX}:2")
@@ -723,9 +723,9 @@ class TestApplication(testlib.MachineCase):
 
         clickDeleteImage(busybox_sel)
         b.click("#delete-all")
-        self.assertTrue(b.get_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']"))
-        self.assertTrue(b.get_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX}:2']"))
-        self.assertTrue(b.get_checked(f".pf-v5-c-check__input[aria-label='{IMG_BUSYBOX}:4']"))
+        self.assertTrue(b.get_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX_LATEST}']"))
+        self.assertTrue(b.get_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX}:2']"))
+        self.assertTrue(b.get_checked(f".pf-v6-c-check__input[aria-label='{IMG_BUSYBOX}:4']"))
         self.confirm_modal("Delete")
         self.confirm_modal("Force delete")
         b.wait_not_present(busybox_sel)
@@ -759,7 +759,7 @@ class TestApplication(testlib.MachineCase):
             b.assert_pixels('#app', "overview", ignore=[".ignore-pixels"], skip_layouts=["rtl", "mobile"])
         alpine_sel = f"#containers-images tbody tr[data-row-id=\"{images[IMG_ALPINE_LATEST]}{auth}\"]".lower()
         b.wait_visible(alpine_sel)
-        b.click(alpine_sel + " td.pf-v5-c-table__toggle button")
+        b.click(alpine_sel + " td.pf-v6-c-table__toggle button")
         clickDeleteImage(alpine_sel)
         self.confirm_modal("Delete")
         self.confirm_modal("Force delete")
@@ -796,12 +796,12 @@ class TestApplication(testlib.MachineCase):
 
         # Intermediate images are not shown in create container dialog
         b.click("#containers-containers-create-container-btn")
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
         b.click("#create-image-image-select-typeahead")
-        b.wait_visible(f".pf-v5-c-select__menu-item:contains('{IMG_REGISTRY}')")
-        b.wait_not_present(".pf-v5-c-select__menu-item:contains('none')")
-        b.click(".pf-v5-c-modal-box .btn-cancel")
-        b.wait_not_present(".pf-v5-c-modal-box")
+        b.wait_visible(f".pf-v6-c-select__menu-item:contains('{IMG_REGISTRY}')")
+        b.wait_not_present(".pf-v6-c-select__menu-item:contains('none')")
+        b.click(".pf-v6-c-modal-box .btn-cancel")
+        b.wait_not_present(".pf-v6-c-modal-box")
 
         # Delete intermediate images
         intermediate_image_sel = "#containers-images tbody:last-child:contains('<none>:<none>')"
@@ -816,9 +816,9 @@ class TestApplication(testlib.MachineCase):
         IMG_INTERMEDIATE = 'localhost/test-intermediate'
         self.execute(auth, f"docker build -t {IMG_INTERMEDIATE} {tmpdir}")
         b.click(f'#containers-images tbody tr:contains("{IMG_INTERMEDIATE}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
         b.click("#create-image-create-btn")
-        b.wait_not_present("div.pf-v5-c-modal-box")
+        b.wait_not_present("div.pf-v6-c-modal-box")
         self.waitContainerRow(IMG_INTERMEDIATE)
 
         # Integration tab should not crash with an intermediate image
@@ -853,9 +853,9 @@ class TestApplication(testlib.MachineCase):
         self.toggleExpandedContainer("test-sh0")
 
         self.performContainerAction("test-sh0", "Commit")
-        b.wait_visible(".pf-v5-c-modal-box")
+        b.wait_visible(".pf-v6-c-modal-box")
 
-        b.wait_in_text(".pf-v5-c-modal-box__description", "state of the test-sh0 container")
+        b.wait_in_text(".pf-v6-c-modal-box__description", "state of the test-sh0 container")
 
         # Empty name yields warning
         b.click("button:contains(Commit)")
@@ -881,15 +881,15 @@ class TestApplication(testlib.MachineCase):
         # Check failing commit
         b.set_input_text("#commit-dialog-image-name", "TEST")
         b.click("button:contains(Commit)")
-        b.wait_in_text(".pf-v5-c-alert", "Failed to commit container test-sh0")
-        b.wait_in_text(".pf-v5-c-alert", "repository name must be lowercase")
+        b.wait_in_text(".pf-v6-c-alert", "Failed to commit container test-sh0")
+        b.wait_in_text(".pf-v6-c-alert", "repository name must be lowercase")
 
         # Test cancel
         self.confirm_modal("Cancel")
 
         # Force commit empty container
         self.performContainerAction("test-sh0", "Commit")
-        b.wait_visible(".pf-v5-c-modal-box")
+        b.wait_visible(".pf-v6-c-modal-box")
         # We prefill command
         b.wait_val("#commit-dialog-command", 'sh -c "ls -a"')
         # Test docker format
@@ -913,14 +913,14 @@ class TestApplication(testlib.MachineCase):
 
         # Commit with name, tag, author and edited command
         self.performContainerAction("test-sh0", "Commit")
-        b.wait_visible(".pf-v5-c-modal-box")
+        b.wait_visible(".pf-v6-c-modal-box")
         b.set_input_text("#commit-dialog-image-name", "newname")
         b.set_input_text("#commit-dialog-image-tag", "24")
         b.set_input_text("#commit-dialog-author", "MM")
         b.set_input_text("#commit-dialog-command", "sh -c 'ps'")
 
         if auth:
-            b.assert_pixels(".pf-v5-c-modal-box", "commit", skip_layouts=["rtl"])
+            b.assert_pixels(".pf-v6-c-modal-box", "commit", skip_layouts=["rtl"])
 
         self.confirm_modal("Commit")
 
@@ -934,7 +934,7 @@ class TestApplication(testlib.MachineCase):
         # Test commit of running container
         self.execute(auth, f"docker run -d --name test-sh2 --stop-timeout 0 {IMG_BUSYBOX} sleep 1000")
         self.performContainerAction("test-sh2", "Commit")
-        b.wait_visible(".pf-v5-c-modal-box")
+        b.wait_visible(".pf-v6-c-modal-box")
         b.set_input_text("#commit-dialog-image-name", "newname")
         self.confirm_modal("Commit")
         waitImageCount(self.user_images_count + 3)
@@ -946,7 +946,7 @@ class TestApplication(testlib.MachineCase):
         # This only works on rootless with cgroupsv2
         if auth or self.has_cgroupsV2:
             self.performContainerAction("test-sh2", "Commit")
-            b.wait_visible(".pf-v5-c-modal-box")
+            b.wait_visible(".pf-v6-c-modal-box")
             b.set_input_text("#commit-dialog-image-name", "newname")
             b.set_checked("#commit-dialog-pause", True)
             b.click("button:contains(Commit)")
@@ -985,8 +985,8 @@ class TestApplication(testlib.MachineCase):
                 # Open get new image modal
                 b.click("#image-actions-dropdown")
                 b.click("button:contains(Download new image)")
-                b.wait_visible('div.pf-v5-c-modal-box header:contains("Search for an image")')
-                b.wait_visible("div.pf-v5-c-modal-box footer button:contains(Download):disabled")
+                b.wait_visible('div.pf-v6-c-modal-box header:contains("Search for an image")')
+                b.wait_visible("div.pf-v6-c-modal-box footer button:contains(Download):disabled")
 
                 return self
 
@@ -1003,35 +1003,35 @@ class TestApplication(testlib.MachineCase):
 
             def selectImageAndDownload(self):
                 # Select and download the self.imageName image
-                b.click(f".pf-v5-c-data-list .image-name:contains({self.imageName})")
-                b.click("div.pf-v5-c-modal-box footer button:contains(Download)")
-                b.wait_not_present("div.pf-v5-c-modal-box")
+                b.click(f".pf-v6-c-data-list .image-name:contains({self.imageName})")
+                b.click("div.pf-v6-c-modal-box footer button:contains(Download)")
+                b.wait_not_present("div.pf-v6-c-modal-box")
 
                 return self
 
             def expectDownloadErrorForNonExistingTag(self):
                 title = f"Danger alert:Failed to download image localhost:5000/{self.imageName}:{self.imageTag}"
-                b.wait_visible(f'h4.pf-v5-c-alert__title:contains("{title}")')
+                b.wait_visible(f'h4.pf-v6-c-alert__title:contains("{title}")')
 
                 return self
 
             def expectSearchErrorForNotExistingImage(self):
-                b.wait_visible(f".pf-v5-c-modal-box__body:contains(No results for {self.imageName})")
-                b.click(".pf-v5-c-modal-box button.btn-cancel")
-                b.wait_not_present(".pf-v5-c-modal-box__body")
+                b.wait_visible(f".pf-v6-c-modal-box__body:contains(No results for {self.imageName})")
+                b.click(".pf-v6-c-modal-box button.btn-cancel")
+                b.wait_not_present(".pf-v6-c-modal-box__body")
 
                 return self
 
             def expectDownloadSuccess(self):
                 # Confirm that the modal dialog is not open anymore
-                b.wait_not_present('div.pf-v5-c-modal-box')
+                b.wait_not_present('div.pf-v6-c-modal-box')
                 # Confirm that the image got downloaded
                 checkImage(b,
                            f"localhost:5000/{self.imageName}:{self.imageTag or 'latest'}",
                            "system" if self.user == "system" else "admin")
 
                 # Confirm that no error has happened
-                b.wait_not_present('h4.pf-v5-c-alert__title:contains("Failed to download image")')
+                b.wait_not_present('h4.pf-v6-c-alert__title:contains("Failed to download image")')
 
                 # Find out this image ID
                 container_name = f"localhost:5000/{self.imageName}:{self.imageTag or 'latest'}"
@@ -1049,30 +1049,30 @@ class TestApplication(testlib.MachineCase):
                 imageId = f"{self.imageSha}{'true' if self.user == 'system' else 'false'}"
                 sel = f"#containers-images tbody tr[data-row-id=\"{imageId}\"]"
                 b.wait_visible(sel)
-                b.click(sel + " td.pf-v5-c-table__toggle button")
+                b.click(sel + " td.pf-v6-c-table__toggle button")
 
                 # Click the delete icon on the image row
-                b.click(sel + " .pf-v5-c-menu-toggle")
+                b.click(sel + " .pf-v6-c-menu-toggle")
                 b.click(sel + ' button.btn-delete')
 
                 if another:
                     b.click("#delete-all")
-                    sel = f".pf-v5-c-check__input[aria-label='localhost:5000/{self.imageName}{imageTagSuffix}']"
+                    sel = f".pf-v6-c-check__input[aria-label='localhost:5000/{self.imageName}{imageTagSuffix}']"
                     self.assertTrue(b.get_checked(sel))
-                    self.assertTrue(b.get_checked(f".pf-v5-c-check__input[aria-label='{another}']"))
+                    self.assertTrue(b.get_checked(f".pf-v6-c-check__input[aria-label='{another}']"))
                     b.click("#delete-all")
                     b.wait_visible("#btn-img-delete:disabled")
 
                     b.set_checked(
-                        f".pf-v5-c-check__input[aria-label='localhost:5000/{self.imageName}{imageTagSuffix}']", True)
-                    b.set_checked(f".pf-v5-c-check__input[aria-label='{another}']", True)
+                        f".pf-v6-c-check__input[aria-label='localhost:5000/{self.imageName}{imageTagSuffix}']", True)
+                    b.set_checked(f".pf-v6-c-check__input[aria-label='{another}']", True)
 
                 # Confirm deletion in the delete dialog
-                b.click(".pf-v5-c-modal-box #btn-img-delete")
+                b.click(".pf-v6-c-modal-box #btn-img-delete")
 
                 if force:
                     # Confirm force delete
-                    b.click(".pf-v5-c-modal-box button:contains('Force delete')")
+                    b.click(".pf-v6-c-modal-box button:contains('Force delete')")
 
                 b.wait_not_present(sel)
 
@@ -1085,19 +1085,19 @@ class TestApplication(testlib.MachineCase):
         # Test registries
         b.click("#image-actions-dropdown")
         b.click("button:contains(Download new image)")
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Search for an image")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Search for an image")')
         # HACK: Sometimes the value is not shown fully. FIXME
         b.set_input_text("#search-image-dialog-name", "my-busybox", value_check=False)
 
-        b.wait_visible(".pf-v5-c-data-list .image-name:contains('localhost:5000/my-busybox')")
-        b.wait_visible(".pf-v5-c-data-list .image-name:contains('localhost:6000/my-busybox')")
+        b.wait_visible(".pf-v6-c-data-list .image-name:contains('localhost:5000/my-busybox')")
+        b.wait_visible(".pf-v6-c-data-list .image-name:contains('localhost:6000/my-busybox')")
         b.assert_pixels(".docker-search", "download", skip_layouts=["rtl"])
 
         b.set_val('#registry-select', "localhost:6000")
-        b.wait_not_present(".pf-v5-c-data-list .image-name:contains('localhost:5000/my-busybox')")
-        b.wait_visible(".pf-v5-c-data-list .image-name:contains('localhost:6000/my-busybox')")
-        b.click(".pf-v5-c-modal-box button:contains('Cancel')")
-        b.wait_not_present('div.pf-v5-c-modal-box')
+        b.wait_not_present(".pf-v6-c-data-list .image-name:contains('localhost:5000/my-busybox')")
+        b.wait_visible(".pf-v6-c-data-list .image-name:contains('localhost:6000/my-busybox')")
+        b.click(".pf-v6-c-modal-box button:contains('Cancel')")
+        b.wait_not_present('div.pf-v6-c-modal-box')
 
         dialog0 = DownloadImageDialog(self, imageName='my-busybox', user="system")
         dialog0.openDialog() \
@@ -1115,7 +1115,7 @@ class TestApplication(testlib.MachineCase):
         second_tag = "localhost/copybox:latest"
         self.execute(False, f"docker tag localhost:5000/my-busybox {second_tag}")
         # expand details
-        b.click("#containers-images tr:contains('my-busybox') td.pf-v5-c-table__toggle button")
+        b.click("#containers-images tr:contains('my-busybox') td.pf-v6-c-table__toggle button")
         b.wait_in_text("#containers-images tbody.pf-m-expanded tr .image-details", second_tag)
         dialog1.deleteImage(True, another=second_tag)
 
@@ -1162,7 +1162,7 @@ class TestApplication(testlib.MachineCase):
         container_sha = self.execute(auth, "docker inspect --format '{{.Id}}' swamped-crate").strip()
         self.waitContainer(container_sha, auth, name='swamped-crate', image=IMG_BUSYBOX,
                            state='Exited', owner="system" if auth else "admin")
-        b.click("#containers-containers tbody tr:contains('swamped-crate') .pf-v5-c-menu-toggle")
+        b.click("#containers-containers tbody tr:contains('swamped-crate') .pf-v6-c-menu-toggle")
 
         if not auth:
             # Checkpoint/restore is not supported on user containers yet - the related buttons should not be shown
@@ -1172,7 +1172,7 @@ class TestApplication(testlib.MachineCase):
         # Health check is not set up
         b.wait_not_present(self.getContainerAction('swamped-crate', 'Run health check'))
 
-        b.click("#containers-containers tbody tr:contains('swamped-crate') .pf-v5-c-menu-toggle")
+        b.click("#containers-containers tbody tr:contains('swamped-crate') .pf-v6-c-menu-toggle")
 
         # Start the container
         self.performContainerAction(IMG_BUSYBOX, "Start")
@@ -1221,10 +1221,10 @@ class TestApplication(testlib.MachineCase):
         self.waitContainerRow(IMG_BUSYBOX)
         if not auth:
             # Check that the checkpoint option is not present for rootless
-            b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v5-c-menu-toggle")
+            b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v6-c-menu-toggle")
             b.wait_visible(self.getContainerAction(IMG_BUSYBOX, 'Force stop'))
             b.wait_not_present(self.getContainerAction(IMG_BUSYBOX, 'Checkpoint'))
-            b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v5-c-menu-toggle")
+            b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v6-c-menu-toggle")
         # Stop the container
         self.performContainerAction(IMG_BUSYBOX, "Force stop")
 
@@ -1240,7 +1240,7 @@ class TestApplication(testlib.MachineCase):
 
         # Check that console reconnects when container starts
         b.click(".pf-m-expanded button:contains('Console')")
-        b.wait_text(".pf-m-expanded .pf-v5-c-empty-state", "Container is not running")
+        b.wait_text(".pf-m-expanded .pf-v6-c-empty-state", "Container is not running")
         self.performContainerAction("swamped-crate", "Start")
         b.wait_in_text(".pf-m-expanded .xterm-accessibility-tree", "/ # ")
         b.focus(".pf-m-expanded .xterm-helper-textarea")
@@ -1283,13 +1283,13 @@ class TestApplication(testlib.MachineCase):
 
             # Checkpoint the container
             self.performContainerAction(IMG_BUSYBOX, "Checkpoint")
-            b.set_checked('.pf-v5-c-modal-box input#checkpoint-dialog-keep', True)
-            b.set_checked('.pf-v5-c-modal-box input#checkpoint-dialog-tcpEstablished', True)
-            b.click('.pf-v5-c-modal-box button:contains(Checkpoint)')
+            b.set_checked('.pf-v6-c-modal-box input#checkpoint-dialog-keep', True)
+            b.set_checked('.pf-v6-c-modal-box input#checkpoint-dialog-tcpEstablished', True)
+            b.click('.pf-v6-c-modal-box button:contains(Checkpoint)')
             b.wait_not_present('.modal_dialog')
 
             def criu_alert():
-                text = b.text(".pf-v5-c-alert.pf-m-danger > .pf-v5-c-alert__description").lower()
+                text = b.text(".pf-v6-c-alert.pf-m-danger > .pf-v6-c-alert__description").lower()
                 return "checkpoint/restore requires at least criu" in text or "failed to check for criu" in text
             b.wait(criu_alert)
             return
@@ -1303,9 +1303,9 @@ class TestApplication(testlib.MachineCase):
         b.wait(lambda: self.execute(True, "docker ps --all | grep -e swamped-crate -e Exited"))
 
         # Check that the restore option is not present (i.e. start is a regular button)
-        b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v5-c-menu-toggle")
+        b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v6-c-menu-toggle")
         b.wait_not_present(self.getContainerAction(IMG_BUSYBOX, 'Restore'))
-        b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v5-c-menu-toggle")
+        b.click(f"#containers-containers tbody tr:contains('{IMG_BUSYBOX}') .pf-v6-c-menu-toggle")
 
         # Start the container
         self.performContainerAction("swamped-crate", "Start")
@@ -1317,12 +1317,12 @@ class TestApplication(testlib.MachineCase):
 
         # Checkpoint the container
         self.performContainerAction("swamped-crate", "Checkpoint")
-        b.set_checked('.pf-v5-c-modal-box input#checkpoint-dialog-keep', True)
-        b.set_checked('.pf-v5-c-modal-box input#checkpoint-dialog-tcpEstablished', True)
-        b.click('.pf-v5-c-modal-box button:contains(Checkpoint)')
+        b.set_checked('.pf-v6-c-modal-box input#checkpoint-dialog-keep', True)
+        b.set_checked('.pf-v6-c-modal-box input#checkpoint-dialog-tcpEstablished', True)
+        b.click('.pf-v6-c-modal-box button:contains(Checkpoint)')
 
         with b.wait_timeout(300):
-            b.wait_not_present(".pf-v5-c-modal-box")
+            b.wait_not_present(".pf-v6-c-modal-box")
 
         if self.has_criu:
             b.wait(lambda: self.getContainerAttr("swamped-crate", "State") in NOT_RUNNING)
@@ -1332,19 +1332,19 @@ class TestApplication(testlib.MachineCase):
             )
         else:
             # expect proper error message
-            b.wait_in_text(".pf-v5-c-alert.pf-m-danger", "Failed to checkpoint container swamped-crate")
+            b.wait_in_text(".pf-v6-c-alert.pf-m-danger", "Failed to checkpoint container swamped-crate")
             b.wait(lambda: "checkpoint/restore requires at least criu" in
-                   b.text(".pf-v5-c-alert.pf-m-danger > .pf-v5-c-alert__description").lower())
+                   b.text(".pf-v6-c-alert.pf-m-danger > .pf-v6-c-alert__description").lower())
             return
 
         # Restore the container
         self.waitContainerRow("swamped-crate")
         self.performContainerAction("swamped-crate", "Restore")
-        b.set_checked('.pf-v5-c-modal-box input#restore-dialog-keep', True)
-        b.set_checked('.pf-v5-c-modal-box input#restore-dialog-tcpEstablished', True)
-        b.set_checked('.pf-v5-c-modal-box input#restore-dialog-ignoreStaticIP', True)
-        b.set_checked('.pf-v5-c-modal-box input#restore-dialog-ignoreStaticMAC', True)
-        b.click('.pf-v5-c-modal-box button:contains(Restore)')
+        b.set_checked('.pf-v6-c-modal-box input#restore-dialog-keep', True)
+        b.set_checked('.pf-v6-c-modal-box input#restore-dialog-tcpEstablished', True)
+        b.set_checked('.pf-v6-c-modal-box input#restore-dialog-ignoreStaticIP', True)
+        b.set_checked('.pf-v6-c-modal-box input#restore-dialog-ignoreStaticMAC', True)
+        b.click('.pf-v6-c-modal-box button:contains(Restore)')
         b.wait(lambda: self.getContainerAttr("swamped-crate", "State") in 'Running')
 
         # A new MAC address should have been generated
@@ -1359,8 +1359,8 @@ class TestApplication(testlib.MachineCase):
         # Checkpoint the container without stopping
         self.waitContainerRow("swamped-crate")
         self.performContainerAction("swamped-crate", "Checkpoint")
-        b.set_checked('.pf-v5-c-modal-box input#checkpoint-dialog-leaveRunning', True)
-        b.click('.pf-v5-c-modal-box button:contains(Checkpoint)')
+        b.set_checked('.pf-v6-c-modal-box input#checkpoint-dialog-leaveRunning', True)
+        b.click('.pf-v6-c-modal-box button:contains(Checkpoint)')
         b.wait_not_present('.modal_dialog')
 
         # Stop the container
@@ -1369,7 +1369,7 @@ class TestApplication(testlib.MachineCase):
 
         # Restore the container
         self.performContainerAction("swamped-crate", "Restore")
-        b.click('.pf-v5-c-modal-box button:contains(Restore)')
+        b.click('.pf-v6-c-modal-box button:contains(Restore)')
         b.wait(lambda: self.getContainerAttr("swamped-crate", "State") in 'Running')
 
     def testNotRunning(self):
@@ -1391,7 +1391,7 @@ class TestApplication(testlib.MachineCase):
         self.login_and_go("/docker")
 
         # Troubleshoot action
-        b.click("#app .pf-v5-c-empty-state button.pf-m-link")
+        b.click("#app .pf-v6-c-empty-state button.pf-m-link")
         b.enter_page("/system/services")
         # services page is too slow
         with b.wait_timeout(60):
@@ -1400,19 +1400,19 @@ class TestApplication(testlib.MachineCase):
         # Start action, with enabling (by default)
         b.go("/docker")
         b.enter_page("/docker")
-        b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
+        b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
 
         b.wait_visible("#containers-containers")
-        b.wait_not_present("#overview div.pf-v5-c-alert.pf-m-info")
+        b.wait_not_present("#overview div.pf-v6-c-alert.pf-m-info")
 
         is_active_system("active")
         is_enabled_system("enabled")
 
         # Start action, without enabling
         disable_system()
-        b.click("#app .pf-v5-c-empty-state input[type=checkbox]")
-        b.assert_pixels("#app .pf-v5-c-empty-state", "docker-service-disabled", skip_layouts=["medium", "mobile"])
-        b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
+        b.click("#app .pf-v6-c-empty-state input[type=checkbox]")
+        b.assert_pixels("#app .pf-v6-c-empty-state", "docker-service-disabled", skip_layouts=["medium", "mobile"])
+        b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
 
         b.wait_visible("#containers-containers")
         is_enabled_system("disabled")
@@ -1424,18 +1424,18 @@ class TestApplication(testlib.MachineCase):
         # user docker.service to time out; make sure to start it afresh
         self.login_and_go("/docker")
         self.login_and_go("/docker")
-        b.wait_in_text("#overview div.pf-v5-c-alert .pf-v5-c-alert__title", "Docker service is available")
-        b.click("#overview div.pf-v5-c-alert .pf-v5-c-alert__action > button:contains(Start)")
-        b.wait_not_present("#overview div.pf-v5-c-alert")
+        b.wait_in_text("#overview div.pf-v6-c-alert .pf-v6-c-alert__title", "Docker service is available")
+        b.click("#overview div.pf-v6-c-alert .pf-v6-c-alert__action > button:contains(Start)")
+        b.wait_not_present("#overview div.pf-v6-c-alert")
         is_active_system("active")
         is_enabled_system("enabled")
 
         b.logout()
         disable_system()
         self.login_and_go("/docker", superuser=False)
-        b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
+        b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
         b.wait_visible("#containers-containers")
-        b.wait_not_present("#overview div.pf-v5-c-alert")
+        b.wait_not_present("#overview div.pf-v6-c-alert")
 
         is_active_system("inactive")
         is_enabled_system("disabled")
@@ -1446,10 +1446,10 @@ class TestApplication(testlib.MachineCase):
         self.restore_dir("/usr/share/cockpit/systemd")
         self.machine.execute("rm /usr/share/cockpit/systemd/manifest.json")
         self.login_and_go("/docker")
-        b.wait_visible("#app .pf-v5-c-empty-state button.pf-m-primary")
-        self.assertFalse(b.is_present("#app .pf-v5-c-empty-state button.pf-m-link"))
+        b.wait_visible("#app .pf-v6-c-empty-state button.pf-m-primary")
+        self.assertFalse(b.is_present("#app .pf-v6-c-empty-state button.pf-m-link"))
         # starting still works
-        b.click("#app .pf-v5-c-empty-state button.pf-m-primary")
+        b.click("#app .pf-v6-c-empty-state button.pf-m-primary")
         b.wait_visible("#containers-containers")
 
         self.allow_restart_journal_messages()
@@ -1487,39 +1487,39 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
         container_name = "busybox-downloaded"
 
-        b.click("#containers-containers button.pf-v5-c-button.pf-m-primary")
+        b.click("#containers-containers button.pf-v6-c-button.pf-m-primary")
         b.set_input_text("#run-image-dialog-name", container_name)
 
         # Test invalid input
         b.set_input_text("#create-image-image-select-typeahead", "|alpi*ne?\\")
-        b.wait_text("button.pf-v5-c-select__menu-item:not(.pf-m-disabled)", "localhost/test-alpine:latest")
+        b.wait_text("button.pf-v6-c-select__menu-item:not(.pf-m-disabled)", "localhost/test-alpine:latest")
 
         # No local results found
         b.set_input_text("#create-image-image-select-typeahead", "notfound")
 
-        b.click('button.pf-v5-c-toggle-group__button:contains("Local")')
-        b.wait_text("button.pf-v5-c-select__menu-item.pf-m-disabled", "No images found")
+        b.click('button.pf-v6-c-toggle-group__button:contains("Local")')
+        b.wait_text("button.pf-v6-c-select__menu-item.pf-m-disabled", "No images found")
 
         # Local results found
         b.set_input_text("#create-image-image-select-typeahead", "registry")
         if auth:
-            b.assert_pixels(".pf-v5-c-modal-box", "image-select", skip_layouts=["rtl"])
-        b.click('button.pf-v5-c-toggle-group__button:contains("Local")')
-        b.wait_text("button.pf-v5-c-select__menu-item", IMG_REGISTRY_LATEST)
+            b.assert_pixels(".pf-v6-c-modal-box", "image-select", skip_layouts=["rtl"])
+        b.click('button.pf-v6-c-toggle-group__button:contains("Local")')
+        b.wait_text("button.pf-v6-c-select__menu-item", IMG_REGISTRY_LATEST)
 
         # Local registry
         b.set_input_text("#create-image-image-select-typeahead", "my-busybox")
-        b.click('button.pf-v5-c-toggle-group__button:contains("localhost:5000")')
-        b.wait_text("button.pf-v5-c-select__menu-item:not(.pf-m-disabled)", "localhost:5000/my-busybox")
+        b.click('button.pf-v6-c-toggle-group__button:contains("localhost:5000")')
+        b.wait_text("button.pf-v6-c-select__menu-item:not(.pf-m-disabled)", "localhost:5000/my-busybox")
 
         # Select image
-        b.click('button.pf-v5-c-select__menu-item:contains("localhost:5000/my-busybox")')
+        b.click('button.pf-v6-c-select__menu-item:contains("localhost:5000/my-busybox")')
 
         # Remote image, no pull latest image option
         b.wait_not_present("#run-image-dialog-pull-latest-image")
 
         # Create Container, image is pulled and should end up being "running"
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
         sel = " span:not(.downloading)"
         b.wait(lambda: self.getContainerAttr(container_name, "State", sel) in 'Running')
         self.execute(auth, f"docker exec {container_name} test ! -e /latest")
@@ -1533,21 +1533,21 @@ class TestApplication(testlib.MachineCase):
 
         container_name = "busybox-latest"
 
-        b.click("#containers-containers button.pf-v5-c-button.pf-m-primary")
+        b.click("#containers-containers button.pf-v6-c-button.pf-m-primary")
         b.set_input_text("#run-image-dialog-name", container_name)
 
         # Local registry
         b.set_input_text("#create-image-image-select-typeahead", "my-busybox")
-        b.click('button.pf-v5-c-toggle-group__button:contains("Local")')
+        b.click('button.pf-v6-c-toggle-group__button:contains("Local")')
 
         # Select image
-        b.click('button.pf-v5-c-select__menu-item:contains("localhost:5000/my-busybox")')
+        b.click('button.pf-v6-c-select__menu-item:contains("localhost:5000/my-busybox")')
 
         # Pull the latest image
         b.set_checked("#run-image-dialog-pull-latest-image", True)
 
         # Create Container, image is pulled and should end up being "running"
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
         sel = " span:not(.downloading)"
         b.wait(lambda: self.getContainerAttr(container_name, "State", sel) in 'Running')
         # Verify that the latest file exists
@@ -1557,7 +1557,7 @@ class TestApplication(testlib.MachineCase):
         # Test creating a container with
         if auth:
             container_name = "busybox-download-admin"
-            b.click("#containers-containers button.pf-v5-c-button.pf-m-primary")
+            b.click("#containers-containers button.pf-v6-c-button.pf-m-primary")
 
             # Start container as admin
             b.click('#run-image-dialog-owner-user')
@@ -1566,10 +1566,10 @@ class TestApplication(testlib.MachineCase):
             b.set_input_text("#run-image-dialog-name", container_name)
 
             b.set_input_text("#create-image-image-select-typeahead", IMG_BUSYBOX)
-            b.click('button.pf-v5-c-toggle-group__button:contains("Local")')
-            b.click(f'button.pf-v5-c-select__menu-item:contains("{IMG_BUSYBOX}")')
+            b.click('button.pf-v6-c-toggle-group__button:contains("Local")')
+            b.click(f'button.pf-v6-c-select__menu-item:contains("{IMG_BUSYBOX}")')
 
-            b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+            b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
             b.wait(lambda: self.getContainerAttr(container_name, "State", sel) in 'Running')
 
     def testRunImageSystem(self):
@@ -1588,7 +1588,7 @@ class TestApplication(testlib.MachineCase):
 
         self.login(auth)
 
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         b.wait_in_text("#containers-images", IMG_BUSYBOX)
         b.wait_in_text("#containers-images", IMG_ALPINE)
@@ -1598,7 +1598,7 @@ class TestApplication(testlib.MachineCase):
         # Check command in alpine
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_ALPINE}")')
         b.click(f'#containers-images tbody tr:contains("{IMG_ALPINE}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
         # depending on the precise container, this can be /bin/sh or /bin/ash
         cmd = self.execute(auth, 'docker image inspect --format "{{.Config.Cmd}}" ' + IMG_ALPINE)
         cmd = cmd.strip().replace('[', '').replace(']', '')
@@ -1608,7 +1608,7 @@ class TestApplication(testlib.MachineCase):
         # Open run image dialog
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         # Inspect and fill modal dialog
         b.wait_val("#create-image-image-select-typeahead", IMG_BUSYBOX_LATEST)
@@ -1718,7 +1718,7 @@ class TestApplication(testlib.MachineCase):
         else:
             b.wait_not_present('#run-image-dialog-volume-0-selinux')
 
-        b.set_file_autocomplete_val("#run-image-dialog-volume-0 .pf-v5-c-select", rodir)
+        b.set_file_autocomplete_val("#run-image-dialog-volume-0 .pf-v6-c-select", rodir)
         b.key_press(["\r"])
         b.set_input_text('#run-image-dialog-volume-0-container-path', '/tmp/ro')
         ro_label = m.execute(f"ls -dZ {rodir}").split(" ")[0]
@@ -1730,8 +1730,8 @@ class TestApplication(testlib.MachineCase):
         b.click('.volume-form .btn-add')
 
         if auth:
-            b.assert_pixels(".pf-v5-c-modal-box", "integration",
-                            ignore=["#run-image-dialog-volume-0 .pf-v5-c-select__toggle-typeahead"],
+            b.assert_pixels(".pf-v6-c-modal-box", "integration",
+                            ignore=["#run-image-dialog-volume-0 .pf-v6-c-select__toggle-typeahead"],
                             skip_layouts=["rtl"])
 
         if self.has_selinux:
@@ -1739,13 +1739,13 @@ class TestApplication(testlib.MachineCase):
         else:
             b.wait_not_present('#run-image-dialog-volume-2-selinux')
 
-        b.set_file_autocomplete_val("#run-image-dialog-volume-2 .pf-v5-c-select", rwdir)
+        b.set_file_autocomplete_val("#run-image-dialog-volume-2 .pf-v6-c-select", rwdir)
         b.key_press(["\r"])
         b.set_input_text('#run-image-dialog-volume-2-container-path', '/tmp/rw')
         rw_label = m.execute(f"ls -dZ {rwdir}").split(" ")[0]
 
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
-        b.wait_not_present("div.pf-v5-c-modal-box")
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
+        b.wait_not_present("div.pf-v6-c-modal-box")
         self.waitContainerRow(IMG_BUSYBOX)
         sha = self.execute(auth, "docker inspect --format '{{.Id}}' busybox-with-tty").strip()
         self.waitContainer(sha, auth, name='busybox-with-tty', image=IMG_BUSYBOX,
@@ -1877,7 +1877,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
         self.toggleExpandedContainer(IMG_BUSYBOX)
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         b.wait_val("#create-image-image-select-typeahead", IMG_BUSYBOX_LATEST)
         b.set_input_text("#run-image-dialog-name", "busybox-without-publish")
@@ -1889,8 +1889,8 @@ class TestApplication(testlib.MachineCase):
         # Run without tty, console should be able to `exec`
         b.set_checked("#run-image-dialog-tty", False)
 
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
-        b.wait_not_present("div.pf-v5-c-modal-box")
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
+        b.wait_not_present("div.pf-v6-c-modal-box")
 
         self.waitContainerRow("busybox-without-publish")
         self.toggleExpandedContainer("busybox-without-publish")
@@ -1944,7 +1944,7 @@ class TestApplication(testlib.MachineCase):
         id_with_tty = self.execute(auth, "docker inspect --format '{{.Id}}' busybox-with-tty").strip()
 
         container_sel = f'#containers-images tbody tr:contains("{IMG_BUSYBOX}")'
-        b.click(f'{container_sel} td.pf-v5-c-table__toggle button')
+        b.click(f'{container_sel} td.pf-v6-c-table__toggle button')
         # running container, just selects it, but leaves "Only running" alone
         b.click(f"{container_sel} + tr div.ct-listing-panel-body dt:contains('Used by') + dd button:contains('busybox-with-tty')")  # noqa: E501
         b.wait_js_cond('window.location.hash === "#' + id_with_tty + '"')
@@ -1958,14 +1958,14 @@ class TestApplication(testlib.MachineCase):
         container_name = "busybox-not-started"
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         b.wait_val("#create-image-image-select-typeahead", IMG_BUSYBOX_LATEST)
         b.set_input_text("#run-image-dialog-name", container_name)
         b.set_input_text("#run-image-dialog-command", "sh -c sleep infinity")
 
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-btn')
-        b.wait_not_present("div.pf-v5-c-modal-box")
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-btn')
+        b.wait_not_present("div.pf-v6-c-modal-box")
 
         sha = self.execute(auth, "docker inspect --format '{{.Id}}' " + container_name).strip()
         self.waitContainer(sha, auth, name=container_name, image=IMG_BUSYBOX, state=['Configured', 'Created'])
@@ -1980,12 +1980,12 @@ class TestApplication(testlib.MachineCase):
         # auto-expands container details
         b.wait_in_text("#containers-containers tbody tr:contains('busybox-not-started') + tr", "sleep infinity")
 
-        b.click(f'#containers-images tbody tr:contains("{IMG_ALPINE}") td.pf-v5-c-table__toggle button')
+        b.click(f'#containers-images tbody tr:contains("{IMG_ALPINE}") td.pf-v6-c-table__toggle button')
         b.wait_in_text(f"#containers-images tbody tr:contains('{IMG_ALPINE}') td[data-label='Used by']", 'unused')
 
         b.set_input_text('#containers-filter', 'foobar')
-        b.wait_in_text('#containers-containers .pf-v5-c-empty-state', 'No containers that match the current filter')
-        b.wait_in_text('#containers-images .pf-v5-c-empty-state', 'No images that match the current filter')
+        b.wait_in_text('#containers-containers .pf-v6-c-empty-state', 'No containers that match the current filter')
+        b.wait_in_text('#containers-images .pf-v6-c-empty-state', 'No images that match the current filter')
         b.set_input_text('#containers-filter', '')
 
         if not auth or not self.machine.ostree_image:  # don't kill ws container
@@ -1994,10 +1994,10 @@ class TestApplication(testlib.MachineCase):
                 # Remove all containers first as it is not possible to set --time 0 to rmi command
                 self.execute(auth, "docker rm --all --force --time 0")
             self.execute(auth, "docker rmi -af")
-            b.wait_in_text('#containers-containers .pf-v5-c-empty-state', 'No containers')
+            b.wait_in_text('#containers-containers .pf-v6-c-empty-state', 'No containers')
             b.set_val("#containers-containers-filter", "running")
-            b.wait_in_text('#containers-containers .pf-v5-c-empty-state', 'No running containers')
-            b.wait_in_text('#containers-images .pf-v5-c-empty-state', 'No images')
+            b.wait_in_text('#containers-containers .pf-v6-c-empty-state', 'No running containers')
+            b.wait_in_text('#containers-images .pf-v6-c-empty-state', 'No images')
 
     def check_content(self, kind, present, not_present):
         b = self.browser
@@ -2043,8 +2043,8 @@ class TestApplication(testlib.MachineCase):
     def confirm_modal(self, text):
         """Wait for the pop up window and click the button with text"""
         b = self.browser
-        b.click(f".pf-v5-c-modal-box footer button:contains({text})")
-        b.wait_not_present(f".pf-v5-c-modal-box footer button:contains({text})")
+        b.click(f".pf-v6-c-modal-box footer button:contains({text})")
+        b.wait_not_present(f".pf-v6-c-modal-box footer button:contains({text})")
 
     def testPruneUnusedImagesSystem(self):
         self._testPruneUnusedImagesSystem(True)
@@ -2075,15 +2075,15 @@ class TestApplication(testlib.MachineCase):
         b.click("#prune-unused-images-button")
 
         if auth:
-            b.wait_js_func("ph_count_check", ".pf-v5-c-modal-box__body .pf-v5-c-list li",
+            b.wait_js_func("ph_count_check", ".pf-v6-c-modal-box__body .pf-v6-c-list li",
                            (self.user_images_count + self.system_images_count) - leftover_images)
         elif root:
-            b.wait_js_func("ph_count_check", ".pf-v5-c-modal-box__body .pf-v5-c-list li",
+            b.wait_js_func("ph_count_check", ".pf-v6-c-modal-box__body .pf-v6-c-list li",
                            self.system_images_count - leftover_images)
         else:
-            b.wait_js_func("ph_count_check", ".pf-v5-c-modal-box__body .pf-v5-c-list li",
+            b.wait_js_func("ph_count_check", ".pf-v6-c-modal-box__body .pf-v6-c-list li",
                            self.user_images_count - leftover_images)
-        b.click(".pf-v5-c-modal-box button:contains(Prune)")
+        b.click(".pf-v6-c-modal-box button:contains(Prune)")
 
         # When being superuser, admin images are also removed
         if auth:
@@ -2098,7 +2098,7 @@ class TestApplication(testlib.MachineCase):
 
         # Prune button should now be disabled
         b.click("#image-actions-dropdown")
-        b.wait_visible(".pf-m-disabled.pf-v5-c-menu__list-item:contains(Prune unused images)")
+        b.wait_visible(".pf-m-disabled.pf-v6-c-menu__list-item:contains(Prune unused images)")
 
     def testPruneUnusedImagesSystemSelections(self):
         """ Test the prune unused images selection options"""
@@ -2111,16 +2111,16 @@ class TestApplication(testlib.MachineCase):
         # Deselect both
         b.click("#deleteSystemImages")
         b.click("#deleteUserImages")
-        b.wait_visible(".pf-v5-c-modal-box button:contains(Prune):disabled")
+        b.wait_visible(".pf-v6-c-modal-box button:contains(Prune):disabled")
 
         # Admin / user images are selected
         expected_images = self.user_images_count + self.system_images_count
         if self.machine.ostree_image:
             expected_images -= 1
-        b.wait_js_func("ph_count_check", ".pf-v5-c-modal-box__body .pf-v5-c-list li", expected_images)
+        b.wait_js_func("ph_count_check", ".pf-v6-c-modal-box__body .pf-v6-c-list li", expected_images)
         # Select user images
         b.click("#deleteUserImages")
-        b.click(".pf-v5-c-modal-box button:contains(Prune)")
+        b.click(".pf-v6-c-modal-box button:contains(Prune)")
 
         # System images are left over
         self.waitNumImages(self.system_images_count)
@@ -2131,14 +2131,14 @@ class TestApplication(testlib.MachineCase):
         # Pruning again, should delete all system images
         b.click("#image-actions-dropdown")
         b.click("button:contains(Prune unused images)")
-        b.wait_js_func("ph_count_check", ".pf-v5-c-modal-box__body .pf-v5-c-list li",
+        b.wait_js_func("ph_count_check", ".pf-v6-c-modal-box__body .pf-v6-c-list li",
                        self.system_images_count - 1 if self.machine.ostree_image else self.system_images_count)
-        b.click(".pf-v5-c-modal-box button:contains(Prune)")
+        b.click(".pf-v6-c-modal-box button:contains(Prune)")
         self.waitNumImages(1 if self.machine.ostree_image else 0)
 
         # Prune button should now be disabled
         b.click("#image-actions-dropdown")
-        b.wait_visible(".pf-v5-c-menu__list-item.pf-m-disabled:contains(Prune unused images)")
+        b.wait_visible(".pf-v6-c-menu__list-item.pf-m-disabled:contains(Prune unused images)")
 
     def testPruneUnusedContainersSystem(self):
         self._testPruneUnusedContainersSystem(True)
@@ -2173,13 +2173,13 @@ class TestApplication(testlib.MachineCase):
         b.click("button:contains(Prune unused containers)")
 
         if auth:
-            b.wait_in_text(".pf-v5-c-modal-box__body tbody:nth-of-type(1) td[data-label=Name]", "adminnotrunning")
-            b.wait_in_text(".pf-v5-c-modal-box__body tbody:nth-of-type(2) td[data-label=Name]", "notrunning")
+            b.wait_in_text(".pf-v6-c-modal-box__body tbody:nth-of-type(1) td[data-label=Name]", "adminnotrunning")
+            b.wait_in_text(".pf-v6-c-modal-box__body tbody:nth-of-type(2) td[data-label=Name]", "notrunning")
         else:
-            b.wait_in_text(".pf-v5-c-modal-box__body tbody td[data-label=Name]", "notrunning")
+            b.wait_in_text(".pf-v6-c-modal-box__body tbody td[data-label=Name]", "notrunning")
 
-        b.click(".pf-v5-c-modal-box button:contains(Prune)")
-        b.wait_not_present(".pf-v5-c-modal-box__body")
+        b.click(".pf-v6-c-modal-box button:contains(Prune)")
+        b.wait_not_present(".pf-v6-c-modal-box__body")
 
         if auth:
             self.waitContainerRow("notrunning", False)
@@ -2198,13 +2198,13 @@ class TestApplication(testlib.MachineCase):
     def testCreateContainerValidation(self):
         def validateField(groupSelector, value, errorMessage, resetValue=""):
             b.set_input_text(f"{groupSelector} input", value)
-            b.wait_visible(".pf-v5-c-modal-box__footer #create-image-create-run-btn:not(:disabled)")
-            b.wait_in_text(f"{groupSelector} .pf-v5-c-helper-text__item-text", errorMessage)
-            b.wait_visible(".pf-v5-c-modal-box__footer #create-image-create-run-btn[aria-disabled=true]")
+            b.wait_visible(".pf-v6-c-modal-box__footer #create-image-create-run-btn:not(:disabled)")
+            b.wait_in_text(f"{groupSelector} .pf-v6-c-helper-text__item-text", errorMessage)
+            b.wait_visible(".pf-v6-c-modal-box__footer #create-image-create-run-btn[aria-disabled=true]")
             # Reset to acceptable value and verify the validation message is not present
             b.set_input_text(f"{groupSelector} input", resetValue)
-            b.wait_not_present(f"{groupSelector} .pf-v5-c-helper-text__item-text")
-            b.wait_visible(".pf-v5-c-modal-box__footer #create-image-create-run-btn:not(:disabled)")
+            b.wait_not_present(f"{groupSelector} .pf-v6-c-helper-text__item-text")
+            b.wait_visible(".pf-v6-c-modal-box__footer #create-image-create-run-btn:not(:disabled)")
 
         # Test the validation errors
 
@@ -2218,11 +2218,11 @@ class TestApplication(testlib.MachineCase):
 
         # Start a docker container which uses a port
         self.execute(False, f"docker run -d -p 5000:5000 --name registry --stop-timeout 0 {IMG_REGISTRY}")
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         validateField("#image-name-group", "registry", "Name already in use")
 
@@ -2254,13 +2254,13 @@ class TestApplication(testlib.MachineCase):
         # Port address is already in use
         b.set_input_text('#run-image-dialog-publish-0-host-port', '5000')
         b.set_input_text('#run-image-dialog-publish-0-container-port', '5000')
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
         # Can be "[aA]ddress"
-        b.wait_in_text(".pf-v5-c-alert", "ddress already in use")
+        b.wait_in_text(".pf-v6-c-alert", "ddress already in use")
 
         # Changing the port should allow creation of container
         b.set_input_text('#run-image-dialog-publish-0-host-port', '5001')
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
         b.wait_not_present("#run-image-dialog-name")
 
         self.waitContainerRow(container_name)
@@ -2268,7 +2268,7 @@ class TestApplication(testlib.MachineCase):
         # Test validation JavaScript errors when removing invalid environment entries
         container_name = 'env-var-validation'
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         b.set_input_text("#run-image-dialog-name", container_name)
         b.click("#pf-tab-1-create-image-dialog-tab-integration")
@@ -2278,16 +2278,16 @@ class TestApplication(testlib.MachineCase):
         b.click('.env-form .btn-add')
         b.click('.env-form .btn-add')
         b.set_input_text("#run-image-dialog-env-1-key-group input", "something")
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
 
-        b.wait_in_text("#run-image-dialog-env-0-key-group .pf-v5-c-helper-text__item-text", "must not be empty")
-        b.wait_in_text("#run-image-dialog-env-2-key-group .pf-v5-c-helper-text__item-text", "must not be empty")
+        b.wait_in_text("#run-image-dialog-env-0-key-group .pf-v6-c-helper-text__item-text", "must not be empty")
+        b.wait_in_text("#run-image-dialog-env-2-key-group .pf-v6-c-helper-text__item-text", "must not be empty")
 
         # remove invalid entries
         b.click('#run-image-dialog-env-0-btn-close')
         b.click('#run-image-dialog-env-2-btn-close')
 
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
         self.waitContainerRow(container_name)
 
     def _testHealthcheck(self, auth):
@@ -2299,11 +2299,11 @@ class TestApplication(testlib.MachineCase):
 
         self.login(auth)
 
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
         b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         b.set_input_text("#run-image-dialog-name", "healthy")
 
@@ -2312,17 +2312,17 @@ class TestApplication(testlib.MachineCase):
         b.set_input_text('#run-image-healthcheck-interval input', '325')
         b.set_input_text('#run-image-healthcheck-timeout input', '35')
         b.set_input_text('#run-image-healthcheck-start-period input', '5')
-        b.click('#run-image-healthcheck-retries .pf-v5-c-input-group__item:nth-child(1) button')
+        b.click('#run-image-healthcheck-retries .pf-v6-c-input-group__item:nth-child(1) button')
         b.wait_val("#run-image-healthcheck-retries input", 2)
         if auth:
-            b.assert_pixels('.pf-v5-c-modal-box', "healthcheck-modal", skip_layouts=["rtl"])
+            b.assert_pixels('.pf-v6-c-modal-box', "healthcheck-modal", skip_layouts=["rtl"])
         # Test that the healthcheck option is not available before docker 4.3
         if docker_version(self) < (4, 3, 0):
             b.wait_not_present("#run-image-healthcheck-action")
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
 
         self.waitContainerRow("healthy")
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         healthy_sha = self.execute(auth, "docker inspect --format '{{.Id}}' healthy").strip()
         self.waitContainer(healthy_sha, auth, state='RunningHealthy')
@@ -2374,18 +2374,18 @@ class TestApplication(testlib.MachineCase):
         self.assertGreater(failures, 3)
         if auth:
             b.wait_js_func("ph_count_check", ".pf-m-expanded table[aria-label=Logs] tbody tr", 5)
-            b.assert_pixels(".pf-m-expanded .pf-v5-c-table__expandable-row-content",
+            b.assert_pixels(".pf-m-expanded .pf-v6-c-table__expandable-row-content",
                             "healthcheck-details",
                             ignore=["thead", "#container-details-healthcheck dt:contains('Failing streak') + dd",
                                     "td[data-label='Started at']"],
                             skip_layouts=["rtl"])
 
         self.toggleExpandedContainer("sick")
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         b.wait_visible('#containers-images td[data-label="Image"]:contains("busybox:latest")')
         b.click('#containers-images tbody tr:contains("busybox:latest") .ct-container-create')
-        b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+        b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
         # Test the health check action, only supported in docker 4.3 and later.
         # To test this we make a healthcheck which depends on a file, so when starting the
@@ -2403,7 +2403,7 @@ class TestApplication(testlib.MachineCase):
         b.set_input_text('#run-image-healthcheck-interval input', '1')
         b.set_input_text('#run-image-healthcheck-timeout input', '1')
         b.click('#run-image-healthcheck-action-2')
-        b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+        b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
 
         self.waitContainerRow(containername)
         self.toggleExpandedContainer(containername)
@@ -2438,17 +2438,17 @@ class TestApplication(testlib.MachineCase):
             self.execute(False, f"docker rmi {IMG_BUSYBOX}")
 
         self.login(auth)
-        b.click("#containers-images button.pf-v5-c-expandable-section__toggle")
+        b.click("#containers-images button.pf-v6-c-expandable-section__toggle")
 
         def create_container(name, policy=None):
             b.wait_visible(f'#containers-images td[data-label="Image"]:contains("{IMG_BUSYBOX}")')
             b.click(f'#containers-images tbody tr:contains("{IMG_BUSYBOX}") .ct-container-create')
-            b.wait_visible('div.pf-v5-c-modal-box header:contains("Create container")')
+            b.wait_visible('div.pf-v6-c-modal-box header:contains("Create container")')
 
             b.set_input_text("#run-image-dialog-name", name)
             if policy:
                 b.set_val("#run-image-dialog-restart-policy", "always")
-            b.click('.pf-v5-c-modal-box__footer #create-image-create-run-btn')
+            b.click('.pf-v6-c-modal-box__footer #create-image-create-run-btn')
             self.waitContainerRow(name)
 
         container_name = 'none'
@@ -2593,16 +2593,16 @@ class TestApplication(testlib.MachineCase):
 
         # b.click("#containers-containers-create-pod-btn")
         # b.set_input_text("#create-pod-dialog-name", "")
-        # b.wait_visible(".pf-v5-c-modal-box__footer #create-pod-create-btn:disabled")
-        # b.wait_in_text("#pod-name-group .pf-v5-c-helper-text__item-text", "Invalid characters")
+        # b.wait_visible(".pf-v6-c-modal-box__footer #create-pod-create-btn:disabled")
+        # b.wait_in_text("#pod-name-group .pf-v6-c-helper-text__item-text", "Invalid characters")
 
         # b.set_input_text("#create-pod-dialog-name", pod_name)
-        # b.wait_visible(".pf-v5-c-modal-box__footer #create-pod-create-btn:not(:disabled)")
+        # b.wait_visible(".pf-v6-c-modal-box__footer #create-pod-create-btn:not(:disabled)")
 
         # b.click('.publish-port-form .btn-add')
         # b.set_input_text("#create-pod-dialog-publish-0-container-port-group input", "-1")
-        # b.click(".pf-v5-c-modal-box__footer #create-pod-create-btn")
-        # b.wait_in_text("#create-pod-dialog-publish-0-container-port-group .pf-v5-c-helper-text__item-text",
+        # b.click(".pf-v6-c-modal-box__footer #create-pod-create-btn")
+        # b.wait_in_text("#create-pod-dialog-publish-0-container-port-group .pf-v6-c-helper-text__item-text",
         #                "1 to 65535")
         # b.click("#create-pod-dialog-publish-0-btn-close")
 
@@ -2636,11 +2636,11 @@ class TestApplication(testlib.MachineCase):
     #         else:
     #             b.wait_not_present('#create-pod-dialog-volume-0-selinux')
 
-            # b.set_file_autocomplete_val("#create-pod-dialog-volume-0 .pf-v5-c-select", rodir)
+            # b.set_file_autocomplete_val("#create-pod-dialog-volume-0 .pf-v6-c-select", rodir)
             # b.set_input_text('#create-pod-dialog-volume-0-container-path', '/tmp/ro')
             # b.click('.volume-form .btn-add')
 
-            # b.set_file_autocomplete_val("#create-pod-dialog-volume-1 .pf-v5-c-select", rwdir)
+            # b.set_file_autocomplete_val("#create-pod-dialog-volume-1 .pf-v6-c-select", rwdir)
             # b.set_input_text('#create-pod-dialog-volume-1-container-path', '/tmp/rw')
 
     #     b.click("#create-pod-create-btn")
@@ -2692,7 +2692,7 @@ class TestApplication(testlib.MachineCase):
         self.waitContainerRow(container_name)
         self.toggleExpandedContainer(container_name)
         b.click(".pf-m-expanded button:contains('Logs')")
-        b.wait_in_text(".pf-m-expanded .pf-v5-c-empty-state__content", "failed to obtain logs for Container")
+        b.wait_in_text(".pf-m-expanded .pf-v6-c-empty-state__content", "failed to obtain logs for Container")
 
     @testlib.skipOstree("/lib is read-only")
     def testManifest(self):

@@ -39,7 +39,7 @@ function ImageOptions({ images, checked, handleChange, name, showCheckbox }) {
             }
             <List id={listNameId}>
                 {shownImages.map((image, index) =>
-                    <ListItem className="pf-v5-u-ml-md" key={index}>
+                    <ListItem className="pf-v6-u-ml-md" key={index}>
                         {utils.image_name(image)}
                     </ListItem>
                 )}

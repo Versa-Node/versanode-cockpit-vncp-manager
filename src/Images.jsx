@@ -134,7 +134,7 @@ class Images extends React.Component {
             { title: <span className={usedByCount === 0 ? "ct-grey-text" : ""}>{usedByText}</span>, props: { className: "ignore-pixels", modifier: "nowrap" } },
             {
                 title: <ImageActions image={image} onAddNotification={this.props.onAddNotification} />,
-                props: { className: 'pf-v5-c-table__action content-action' }
+                props: { className: 'pf-v6-c-table__action content-action' }
             },
         ];
 
@@ -255,13 +255,13 @@ class Images extends React.Component {
         return (
             <Card id="containers-images" key="images" className="containers-images">
                 <CardHeader>
-                    <Flex flexWrap={{ default: 'nowrap' }} className="pf-v5-u-w-100">
+                    <Flex flexWrap={{ default: 'nowrap' }} className="pf-v6-u-w-100">
                         <FlexItem grow={{ default: 'grow' }}>
                             <Flex>
                                 <CardTitle>
                                     <Text component={TextVariants.h2} className="containers-images-title">{_("Images")}</Text>
                                 </CardTitle>
-                                <Flex className="ignore-pixels" style={{ rowGap: "var(--pf-v5-global--spacer--xs)" }}>{imageTitleStats}</Flex>
+                                <Flex className="ignore-pixels" style={{ rowGap: "var(--pf-v6-global--spacer--xs)" }}>{imageTitleStats}</Flex>
                             </Flex>
                         </FlexItem>
                         <FlexItem>

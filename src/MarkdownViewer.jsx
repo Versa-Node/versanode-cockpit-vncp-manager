@@ -187,7 +187,7 @@ export function Markdown({
       if (!table) return;
       out.push(
         <div key={`tblwrap-${out.length}`} className="md-table-wrap">
-          <table className="pf-v5-c-table pf-m-compact md-table">
+          <table className="pf-v6-c-table pf-m-compact md-table">
             {table.header.length ? (
               <thead>
                 <tr>
@@ -384,7 +384,7 @@ export function Markdown({
   }, [source, maxTOCLevel, slug]);
 
   return (
-    <div className={`pf-v5-c-content md-root ${className || ""}`}>
+    <div className={`pf-v6-c-content md-root ${className || ""}`}>
       {showTOC && tocRef.current.length > 0 && (
         <nav className="md-toc" aria-label="Table of contents">
           <div className="md-toc__title">Contents</div>
