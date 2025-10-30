@@ -592,14 +592,14 @@ class Application extends React.Component {
                 <WithDialogs>
                     <Page id="overview" key="overview">
                         {notificationList}
-                        <PageSection className="content-filter" padding={{ default: 'noPadding' }}
+                        {/* <PageSection className="content-filter" padding={{ default: 'noPadding' }}
                           variant={PageSectionVariants.light}>
                             <ContainerHeader
                               handleFilterChanged={this.onFilterChanged}
                               ownerFilter={this.state.ownerFilter}
                               textFilter={this.state.textFilter}
                             />
-                        </PageSection>
+                        </PageSection> */}
                         <PageSection className='ct-pagesection-mobile'>
                             <Stack hasGutter>
                                 { this.state.showStartService ? startService : null }

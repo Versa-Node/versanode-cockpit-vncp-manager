@@ -30,7 +30,7 @@ export function validateVolume(value, key) {
 
 export const Volume = ({ id, item, onChange, idx, removeitem, additem, options, itemCount, validationFailed, onValidationChange }) =>
     (
-        <Grid hasGutter id={id}>
+        <Grid className="pf-v6-c-form" hasGutter id={id}>
             <FormGroup className="pf-m-4-col-on-md"
                 id={id + "-host-path-group"}
                 label={_("Host path")}
