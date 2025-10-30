@@ -1,15 +1,16 @@
-/* Basic PF6 → PF5 visual alias so this markup renders correctly without PF6 package */
+/* grid */
+.pf-v6-l-grid, .pf-v5-l-grid { display: grid; gap: var(--pf-v5-global--spacer--md); }
+.pf-v6-l-grid.pf-m-gutter, .pf-v5-l-grid.pf-m-gutter { gap: var(--pf-v5-global--spacer--md); }
+.pf-v6-l-grid__item, .pf-v5-l-grid__item { min-width: 0; }
 
-.pf-v6-l-grid        { display: grid; gap: var(--pf-v5-global--spacer--md); }
-.pf-v6-l-grid.pf-m-gutter { gap: var(--pf-v5-global--spacer--md); }
-.pf-v6-l-grid__item  { min-width: 0; }
+/* form */
+.pf-v6-c-form__group, .pf-v5-c-form__group { margin-block-end: var(--pf-v5-global--spacer--md); }
+.pf-v6-c-form__group-label, .pf-v5-c-form__group-label { display:flex; justify-content:space-between; align-items:center; margin-block-end:.25rem; }
+.pf-v6-c-form__label-text, .pf-v5-c-form__label-text { font-weight:600; }
+.pf-v6-c-form-control, .pf-v5-c-form-control { width:100%; padding:.5rem; border:1px solid var(--pf-v5-global--BorderColor--100); border-radius:4px; }
 
-.pf-v6-c-form__group { margin-block-end: var(--pf-v5-global--spacer--md); }
-.pf-v6-c-form__group-label { display: flex; justify-content: space-between; align-items: center; margin-block-end: .25rem; }
-.pf-v6-c-form__label-text  { font-weight: 600; }
-.pf-v6-c-form-control      { width: 100%; padding: .5rem; border: 1px solid var(--pf-v5-global--BorderColor--100); border-radius: 4px; }
-.pf-v6-c-button.pf-m-plain { background: none; border: 0; cursor: pointer; font-size: 1rem; }
-.pf-v6-c-button.pf-m-small { font-size: .875rem; }
+.pf-v6-c-button.pf-m-plain, .pf-v5-c-button.pf-m-plain { background:none; border:0; cursor:pointer; font-size:1rem; }
+.pf-v6-c-button.pf-m-small, .pf-v5-c-button.pf-m-small { font-size:.875rem; }
 
-.pf-v6-c-form__group-label-help { border: 0; background: none; cursor: help; color: var(--pf-v5-global--Color--200); }
-.pf-v6-svg { fill: currentColor; }
+.pf-v6-c-form__group-label-help, .pf-v5-c-form__group-label-help { border:0; background:none; cursor:help; color:var(--pf-v5-global--Color--200); }
+.pf-v6-svg, .pf-v5-svg { fill: currentColor; }
