@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const root = createRoot(document.getElementById('app'));
     root.render(<Application />);
 
+    enableGlobalPfV5toV6Swap();
+
 });
 
 

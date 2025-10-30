@@ -18,10 +18,10 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 
-// pf5to6-autoswap.js
-(function enableGlobalPfV5toV6Swap() {
+// util.js
+export function enableGlobalPfV5toV6Swap() {
   const DENYLIST = new Set([
-    // put any classes you DON’T want rewritten here
+    // Classes you don’t want renamed
     'pf-v5-svg'
   ]);
 
@@ -47,7 +47,7 @@ export const WithDockerInfo = ({ value, children }) => {
   };
 
   const start = () => {
-    const root = document.documentElement; // whole page, no ID needed
+    const root = document.documentElement; // process entire page
     sweep(root);
 
     const obs = new MutationObserver((muts) => {
@@ -70,16 +70,17 @@ export const WithDockerInfo = ({ value, children }) => {
       attributeFilter: ['class'],
     });
 
-    // optional: expose a way to stop it if you ever need
-    window.__pfV5toV6Stop = () => obs.disconnect();
+    // Return a function to stop watching
+    return () => obs.disconnect();
   };
 
+  // Wait for DOM readiness before starting
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start, { once: true });
   } else {
     start();
   }
-})();
+}
 
 
 
