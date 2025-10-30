@@ -49,7 +49,7 @@ export function validatePublishPort(value, key) {
 
 export const PublishPort = ({ id, item, onChange, idx, removeitem, itemCount, validationFailed, onValidationChange }) =>
     (
-        <Grid hasGutter id={id}>
+        <Grid hasGutter className="pf-v6-l-grid" id={id}>
             <FormGroup className="pf-m-6-col-on-md"
                 id={id + "-ip-address-group"}
                 label={_("IP address")}
