@@ -4,7 +4,7 @@ import { Button } from "@patternfly/react-core/dist/esm/components/Button";
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core/dist/esm/components/Card";
 import { Divider } from "@patternfly/react-core/dist/esm/components/Divider";
 import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex";
+import { Flex } from "@patternfly/react-core-v6/dist/esm/layouts/Flex";
 import { LabelGroup } from "@patternfly/react-core/dist/esm/components/Label";
 import { Text, TextVariants } from "@patternfly/react-core/dist/esm/components/Text";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect";

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList";
-import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex";
+import { Flex } from "@patternfly/react-core-v6/dist/esm/layouts/Flex";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal";
