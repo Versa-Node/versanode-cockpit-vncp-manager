@@ -18,6 +18,71 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 
+// pf5to6-autoswap.js
+(function enableGlobalPfV5toV6Swap() {
+  const DENYLIST = new Set([
+    // put any classes you DON’T want rewritten here
+    'pf-v5-svg'
+  ]);
+
+  const swapClasses = (el) => {
+    if (!el || !el.classList) return;
+    const toAdd = [];
+    const toRemove = [];
+    el.classList.forEach((cls) => {
+      if (cls.startsWith('pf-v5-') && !DENYLIST.has(cls)) {
+        toRemove.push(cls);
+        toAdd.push('pf-v6-' + cls.slice('pf-v5-'.length));
+      }
+    });
+    if (toRemove.length) {
+      toRemove.forEach(c => el.classList.remove(c));
+      toAdd.forEach(c => el.classList.add(c));
+    }
+  };
+
+  const sweep = (root) => {
+    swapClasses(root);
+    root.querySelectorAll?.('[class*="pf-v5-"]').forEach(swapClasses);
+  };
+
+  const start = () => {
+    const root = document.documentElement; // whole page, no ID needed
+    sweep(root);
+
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class') {
+          swapClasses(m.target);
+        } else if (m.type === 'childList' && m.addedNodes?.length) {
+          m.addedNodes.forEach((n) => {
+            if (n.nodeType !== 1) return;
+            sweep(n);
+          });
+        }
+      }
+    });
+
+    obs.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    // optional: expose a way to stop it if you ever need
+    window.__pfV5toV6Stop = () => obs.disconnect();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();
+
+
+
 /**
  * Safely quote a string for /bin/sh so it can be embedded in a single command line.
  * - Always returns a single-quoted token (or "''" for empty).

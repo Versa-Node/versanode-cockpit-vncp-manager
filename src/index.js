@@ -23,8 +23,16 @@ import { createRoot } from 'react-dom/client';
 import 'patternfly/patternfly-5-cockpit.scss';
 import Application from './app.jsx';
 import './docker.scss';
+import { enableGlobalPfV5toV6Swap } from './util.js';
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const root = createRoot(document.getElementById('app'));
     root.render(<Application />);
+
 });
+
+
+
+// Call after the dialog or section is rendered
+

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@patternfly/react-core/dist/esm/components/Button";
 import { DataList, DataListCell, DataListItem, DataListItemCells, DataListItemRow } from "@patternfly/react-core/dist/esm/components/DataList";
-import { Flex } from "@patternfly/react-core-v6/dist/esm/layouts/Flex";
+import { Flex } from "@patternfly/react-core/dist/esm/layouts/Flex";
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal";
@@ -751,7 +751,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
           onChange={(_event, value) => setCustomTag(value)}
         />
         {tagError && (
-          <div className="pf-v6-c-form__helper-text pf-m-error" aria-live="polite">
+          <div className="pf-v5-c-form__helper-text pf-m-error" aria-live="polite">
             {_("Could not list tags; enter one manually.")}
           </div>
         )}
@@ -787,7 +787,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
       <Form isHorizontal>
         {dialogError && <ErrorNotification errorMessage={dialogError} errorDetail={dialogErrorDetail} />}
 
-        <Flex spaceItems={{ default: 'spaceItemsXl' }}>
+        <Flex spaceItems={{ default: 'inlineFlex', modifier: 'spaceItemsXl' }}>
           <FormGroup fieldId="search-image-dialog-name" label={_("Search for")}>
             <TextInput
               id="search-image-dialog-name"
