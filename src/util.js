@@ -18,6 +18,7 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 // util.js
+
 function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return;
   const adds = [], removes = [];
@@ -33,17 +34,31 @@ function rewriteClassList(el, from, to, allowFn = null) {
   }
 }
 
-function sweep(root, from, to, allowFn) {
+/**
+ * Recursively apply class swaps to an element and its descendants
+ * @param {Element} root - the root element
+ * @param {string} from - prefix to replace
+ * @param {string} to - replacement prefix
+ * @param {function} allowFn - optional allow filter
+ * @param {number} levels - recursion depth (-1 = all)
+ * @param {number} current - internal counter
+ */
+function sweep(root, from, to, allowFn, levels = -1, current = 0) {
   if (!root) return;
   rewriteClassList(root, from, to, allowFn);
-  root.querySelectorAll?.('[class*="' + from + '"]').forEach(el => {
-    rewriteClassList(el, from, to, allowFn);
-  });
+
+  // Stop recursion if levels == 0 or max depth reached
+  if (levels === 0 || (levels > 0 && current >= levels)) return;
+
+  for (const child of root.children) {
+    sweep(child, from, to, allowFn, levels, current + 1);
+  }
 }
+
 
 /**
  * swapRules: [
- *   { selector, from, to, deep=true, allow /* optional: (cls)=>boolean *\/ }
+ *   { selector, from, to, levels=-1, allow /* optional: (cls)=>boolean *\/ }
  * ]
  * styleRules: [{ selector, style: { ...cssProps } }]
  * isActive: optional ()=>boolean guard
@@ -59,16 +74,13 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   const applySwapsNow = (root = document) => {
     if (!isActive()) return;
-    // For each rule, find matches under the provided root and apply per deep flag
+
     swapRules.forEach(rule => {
-      const { selector, from, to, deep = true, allow } = rule;
+      const { selector, from, to, levels = -1, allow } = rule;
       const nodes = (root === document)
         ? document.querySelectorAll(selector)
         : (root.matches?.(selector) ? [root] : root.querySelectorAll?.(selector) || []);
-      nodes.forEach(node => {
-        if (deep) sweep(node, from, to, allow);
-        else rewriteClassList(node, from, to, allow); // self-only
-      });
+      nodes.forEach(node => sweep(node, from, to, allow, levels));
     });
   };
 
@@ -76,7 +88,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
   applySwapsNow();
   applyStyles();
 
-  // Observe mutations so late/portaled content is handled
+  // MutationObserver to watch for dynamic content (like PF modals)
   const obs = new MutationObserver(muts => {
     if (!isActive()) return;
     for (const m of muts) {
@@ -87,16 +99,15 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
           applyStyles();
         });
       } else if (m.type === 'attributes' && m.attributeName === 'class') {
-        // If a target itself is a match for a self-only rule or any rule, re-apply carefully
-        swapRules.forEach(({ selector, from, to, deep = true, allow }) => {
+        swapRules.forEach(({ selector, from, to, levels = -1, allow }) => {
           if (m.target.matches?.(selector)) {
-            if (deep) sweep(m.target, from, to, allow);
-            else rewriteClassList(m.target, from, to, allow);
+            sweep(m.target, from, to, allow, levels);
           }
         });
       }
     }
   });
+
   obs.observe(document.body, {
     childList: true,
     subtree: true,
