@@ -42,6 +42,8 @@ const swapRules = [
 const integrationGridsSelector =
   `${integrationSection} .pf-v5-l-grid, ${integrationSectionV6} .pf-v6-l-grid`;
 
+const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
+
 const styleRules = [
   {
     selector: integrationGridsSelector,
