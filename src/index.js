@@ -8,7 +8,7 @@ import { enableSelectorSwaps } from './util.js';
 
 // UI replacements here
 const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body'
-const createContainerModalIntegrationTab = 'div[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content'
+const createContainerModalIntegrationTab = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content'
 const swapRules = [
   // Swap class
   //{ selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
