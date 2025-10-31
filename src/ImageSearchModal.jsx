@@ -751,7 +751,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
           onChange={(_event, value) => setCustomTag(value)}
         />
         {tagError && (
-          <div className="pf-v5-c-form__helper-text pf-m-error" aria-live="polite">
+          <div className="pf-v6-c-form__helper-text pf-m-error" aria-live="polite">
             {_("Could not list tags; enter one manually.")}
           </div>
         )}

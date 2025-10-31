@@ -25,32 +25,32 @@ function dgroup(label, collapsed = true) {
 
 // Integration tab <section> base (PF5 + PF6) – still used by some style rules
 const integrationSectionPF5 =
-  'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
+  'section.pf-v6-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 const integrationSectionPF6 =
   'section.pf-v6-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 
 // IMPORTANT: Global anchor for any PF grid with gutter (PF5/PF6) – order agnostic
 const anyGridWithGutterGlobal = [
-  ".pf-v5-l-grid.pf-m-gutter",
-  ".pf-m-gutter.pf-v5-l-grid",
+  ".pf-v6-l-grid.pf-m-gutter",
+  ".pf-m-gutter.pf-v6-l-grid",
   ".pf-v6-l-grid.pf-m-gutter",
   ".pf-m-gutter.pf-v6-l-grid",
 ].join(", ");
 
 // For styling grids (PF5 + PF6)
 const integrationGridsSelector =
-  `${integrationSectionPF5} .pf-v5-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
+  `${integrationSectionPF5} .pf-v6-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
 
 // Optional: PF5 search modal body (compat)
 const searchImageModalBody =
-  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
-const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v6-c-modal-box__body';
+const searchBodyPF6 = searchImageModalBody.replace("pf-v6", "pf-v6");
 
 /* =========================
    Helpers
    ========================= */
 
-// Minimal class swapper (pf-v5-* → pf-v6-*) with stats
+// Minimal class swapper (pf-v6-* → pf-v6-*) with stats
 function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return { removed: 0, added: 0 };
   const adds = [], removes = [];
@@ -101,7 +101,7 @@ function lowerAndSweepUnderGrid(gridEl, rule) {
   try {
     if (!gridEl) return;
 
-    // ✅ Do NOT rewrite the anchor grid class; leave pf-v5-l-grid / pf-m-gutter as-is
+    // ✅ Do NOT rewrite the anchor grid class; leave pf-v6-l-grid / pf-m-gutter as-is
     dlog("Anchor grid left untouched:", gridEl, gridEl.className);
 
     // Lower direct children one level to stabilize PF6 layout descendants
@@ -125,12 +125,12 @@ function lowerAndSweepUnderGrid(gridEl, rule) {
 // Convert anything below ANY PF grid with gutter (global, order-agnostic)
 const convertBelowGrid = {
   selector: anyGridWithGutterGlobal,
-  from: "pf-v5",
+  from: "pf-v6",
   to: "pf-v6",
   includeSelf: false,            // ✅ never touch the anchor itself
   _apply(anchor) {
     const hasGutter = anchor.classList.contains("pf-m-gutter");
-    const isPF5Grid = anchor.classList.contains("pf-v5-l-grid");
+    const isPF5Grid = anchor.classList.contains("pf-v6-l-grid");
     const isPF6Grid = anchor.classList.contains("pf-v6-l-grid");
     if (!hasGutter || (!isPF5Grid && !isPF6Grid)) {
       dlog("Skipped anchor (not a PF grid with gutter):", anchor);
@@ -144,7 +144,7 @@ const convertBelowGrid = {
 // Shallow flip for PF5 modal body (compat)
 const shallowModalFlip = {
   selector: searchImageModalBody,
-  from: "pf-v5",
+  from: "pf-v6",
   to: "pf-v6",
   levels: 1,
   includeSelf: true,
@@ -185,7 +185,7 @@ const styleRules = [
   },
   // Turn the inner row into a 1/3–2/3 grid (PF5 + PF6)
   {
-    selector: `${searchBodyPF6} > form .pf-v5-l-flex, ${searchBodyPF6} > form .pf-v6-l-flex`,
+    selector: `${searchBodyPF6} > form .pf-v6-l-flex, ${searchBodyPF6} > form .pf-v6-l-flex`,
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 2fr",
@@ -196,14 +196,14 @@ const styleRules = [
   },
   // Allow groups to shrink so inputs can fill their track
   {
-    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchBodyPF6} > form .pf-v6-c-form__group`,
+    selector: `${searchImageModalBody} > form .pf-v6-c-form__group, ${searchBodyPF6} > form .pf-v6-c-form__group`,
     style: { minWidth: 0, flex: "initial" },
   },
   // Inputs/selects fill width (PF5 + PF6)
   {
     selector: `
-      ${searchBodyPF6} > form .pf-v5-c-form-control input,
-      ${searchBodyPF6} > form .pf-v5-c-form-control select,
+      ${searchBodyPF6} > form .pf-v6-c-form-control input,
+      ${searchBodyPF6} > form .pf-v6-c-form-control select,
       ${searchBodyPF6} > form .pf-v6-c-form-control input,
       ${searchBodyPF6} > form .pf-v6-c-form-control select
     `,
@@ -218,7 +218,7 @@ const styleRules = [
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-      gap: "var(--pf-v6-global--spacer--md, var(--pf-v5-global--spacer--md, 16px))",
+      gap: "var(--pf-v6-global--spacer--md, var(--pf-v6-global--spacer--md, 16px))",
       alignItems: "end",
     },
   },
@@ -226,7 +226,7 @@ const styleRules = [
   // Ensure field groups can shrink inside their cells (PF5 + PF6 bodies)
   {
     selector: `
-      ${integrationSectionPF5} .pf-v5-c-form__field-group-body .pf-v5-c-form__group,
+      ${integrationSectionPF5} .pf-v6-c-form__field-group-body .pf-v6-c-form__group,
       ${integrationSectionPF6} .pf-v6-c-form__field-group-body .pf-v6-c-form__group
     `,
     style: { minWidth: 0 },

@@ -107,8 +107,8 @@
 
 // HACK: A local copy of pf-m-horizontal (as ct-m-horizontal),
 // but applied at the FormGroup level instead of Form
-@media (min-width: $pf-v5-global--breakpoint--md) {
-    .pf-v5-c-form__group.ct-m-horizontal {
+@media (min-width: $pf-v6-global--breakpoint--md) {
+    .pf-v6-c-form__group.ct-m-horizontal {
         display: grid;
         grid-column-gap: var(--pf-v6-c-form--m-horizontal__group-label--md--GridColumnGap);
         grid-template-columns: var(--pf-v6-c-form--m-horizontal__group-label--md--GridColumnWidth) var(--pf-v6-c-form--m-horizontal__group-control--md--GridColumnWidth);

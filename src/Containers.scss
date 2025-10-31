@@ -52,7 +52,7 @@
 }
 
 .pod-stat {
-    @media (max-width: $pf-v5-global--breakpoint--sm - 1) {
+    @media (max-width: $pf-v6-global--breakpoint--sm - 1) {
         // Place each pod stat on its own row
         flex-basis: 100%;
         display: grid;
