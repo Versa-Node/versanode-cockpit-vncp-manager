@@ -12,9 +12,14 @@
 .pf-v6-c-form__group-label-help { border: 0; background: none; cursor: help; color: var(--pf-v5-global--Color--200); }
 .pf-v6-svg { fill: currentColor; }
 
+
+
 /* Works whether your swap renamed to v6 or not */
 #run-image-dialog-publish-0.pf-v5-l-grid,
-#run-image-dialog-publish-0.pf-v6-l-grid {
+#run-image-dialog-volume-0.pf-v5-l-grid,
+#run-image-dialog-publish-0.pf-v6-l-grid,
+#run-image-dialog-volume-0.pf-v6-l-grid
+{
   /* keep a fixed 5-column layout: IP | Host | Container | Protocol | Remove */
   grid-template-columns: minmax(220px, 1fr) 140px 140px 160px min-content;
   align-items: start; /* top-align contents across the row */
@@ -22,20 +27,26 @@
 
 /* Make each form group vertical: label above control */
 #run-image-dialog-publish-0 .pf-v5-c-form__group,
-#run-image-dialog-publish-0 .pf-v6-c-form__group {
+#run-image-dialog-volume-0 .pf-v5-c-form__group,
+#run-image-dialog-publish-0 .pf-v6-c-form__group,
+#run-image-dialog-volume-0 .pf-v6-c-form__group  {
   display: flex;
   flex-direction: column;
 }
 
 /* Inputs full width inside their cells (optional) */
 #run-image-dialog-publish-0 .pf-v5-c-form-control,
-#run-image-dialog-publish-0 .pf-v6-c-form-control {
+#run-image-dialog-volume-0 .pf-v5-c-form-control,
+#run-image-dialog-publish-0 .pf-v6-c-form-control,
+#run-image-dialog-volume-0 .pf-v6-c-form-control {
   width: 100%;
 }
 
 @media (max-width: 768px) {
   #run-image-dialog-publish-0.pf-v5-l-grid,
-  #run-image-dialog-publish-0.pf-v6-l-grid {
+  #run-image-dialog-volume-0.pf-v5-l-grid,
+  #run-image-dialog-publish-0.pf-v6-l-grid,
+  #run-image-dialog-volume-0.pf-v6-l-grid  {
     grid-template-columns: 1fr; /* stack fields vertically on small screens */
   }
 }
