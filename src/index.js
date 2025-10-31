@@ -9,14 +9,14 @@ import { enableSelectorSwaps } from './util.js';
 // UI replacements here
 const swapRules = [
   // Swap class
-  { selector: '#pf-tab-section-2-create-image-dialog-tab-integration', from: 'pf-v5', to: 'pf-v6', levels: -1},
+  { selector: '#run-image-dialog-volume-0', from: 'pf-v5', to: 'pf-v6', levels: -1},
   
   { selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
-  { selector: '#pf-modal-part-2', from: 'pf-v5', to: 'pf-v6' , levels: 1 },
+  { selector: '#search-image-dialog-parent', from: 'pf-v5', to: 'pf-v6' , levels: 3 },
 ];
 
 const styleRules = [
- { selector: '#pf-modal-part-2 > ul', style: { marginTop: '22px' } },
+ { selector: '#search-image-dialog-parent > div > ul', style: { marginTop: '22px' } },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -760,6 +760,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
   };
 
   return (
+    <div id ="search-image-dialog-parent">
     <Modal
       isOpen
       className="vncp-search"
@@ -784,7 +785,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
         </>
       }
     >
-      <Form id="search-image-dialog-registry" isHorizontal>
+      <Form isHorizontal>
         {dialogError && <ErrorNotification errorMessage={dialogError} errorDetail={dialogErrorDetail} />}
 
         <Flex spaceItems={{ default: 'inlineFlex', modifier: 'spaceItemsXl' }}>
@@ -871,5 +872,6 @@ export const ImageSearchModal = ({ downloadImage }) => {
         </>
       )}
     </Modal>
+    </div>
   );
 };
