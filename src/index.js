@@ -23,15 +23,17 @@ import { createRoot } from 'react-dom/client';
 import 'patternfly/patternfly-5-cockpit.scss';
 import Application from './app.jsx';
 import './docker.scss';
-import { enableGlobalPfV5toV6Swap } from './util.js';
+import { enableScopedPfV5toV6Swap } from './util.js';
 
 
 document.addEventListener("DOMContentLoaded", function () {
     const root = createRoot(document.getElementById('app'));
     root.render(<Application />);
 
-    enableGlobalPfV5toV6Swap();
-
+    const stopSwap = enableScopedPfV5toV6Swap([
+    '#pf-modal-part-5',
+    document.getElementById('run-image-dialog-publish-0'),
+    ]);
 });
 
 

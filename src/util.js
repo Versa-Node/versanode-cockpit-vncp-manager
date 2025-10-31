@@ -17,27 +17,36 @@ export const WithDockerInfo = ({ value, children }) => {
         </DockerInfoContext.Provider>
     );
 };
-
 // util.js
-export function enableGlobalPfV5toV6Swap() {
-  const DENYLIST = new Set([
-    // Classes you don’t want renamed
-    'pf-v5-svg'
-  ]);
+export function enableScopedPfV5toV6Swap(
+  roots,                       // array of selectors or Elements
+  { denylist = new Set(['pf-v5-svg']), live = true } = {}
+) {
+  // Normalize input -> Element[]
+  const toArray = (x) => (Array.isArray(x) ? x : [x]);
+  const resolve = (t) =>
+    typeof t === 'string' ? document.querySelectorAll(t) : [t];
+  const rootEls = [...new Set(
+    toArray(roots).flatMap((r) => Array.from(resolve(r) || []))
+  )].filter((el) => el && el.nodeType === 1);
+
+  if (!rootEls.length) {
+    return () => {};
+  }
 
   const swapClasses = (el) => {
     if (!el || !el.classList) return;
     const toAdd = [];
     const toRemove = [];
     el.classList.forEach((cls) => {
-      if (cls.startsWith('pf-v5-') && !DENYLIST.has(cls)) {
+      if (cls.startsWith('pf-v5-') && !denylist.has(cls)) {
         toRemove.push(cls);
         toAdd.push('pf-v6-' + cls.slice('pf-v5-'.length));
       }
     });
     if (toRemove.length) {
-      toRemove.forEach(c => el.classList.remove(c));
-      toAdd.forEach(c => el.classList.add(c));
+      toRemove.forEach((c) => el.classList.remove(c));
+      toAdd.forEach((c) => el.classList.add(c));
     }
   };
 
@@ -46,10 +55,13 @@ export function enableGlobalPfV5toV6Swap() {
     root.querySelectorAll?.('[class*="pf-v5-"]').forEach(swapClasses);
   };
 
-  const start = () => {
-    const root = document.documentElement; // process entire page
-    sweep(root);
+  // Initial pass on each root
+  rootEls.forEach(sweep);
 
+  // Live mode (MutationObserver) limited to those roots
+  if (!live) return () => {};
+
+  const observers = rootEls.map((root) => {
     const obs = new MutationObserver((muts) => {
       for (const m of muts) {
         if (m.type === 'attributes' && m.attributeName === 'class') {
@@ -62,25 +74,19 @@ export function enableGlobalPfV5toV6Swap() {
         }
       }
     });
-
     obs.observe(root, {
       childList: true,
       subtree: true,
       attributes: true,
       attributeFilter: ['class'],
     });
+    return obs;
+  });
 
-    // Return a function to stop watching
-    return () => obs.disconnect();
-  };
-
-  // Wait for DOM readiness before starting
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', start, { once: true });
-  } else {
-    start();
-  }
+  // Stop function
+  return () => observers.forEach((o) => o.disconnect());
 }
+
 
 
 
