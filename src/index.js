@@ -19,41 +19,46 @@ const swapRules = [
 ];
 
 const styleRules = [
-  // Make the form stretch and wrap nicely
+  // Form container: don't space-between; let the inner row handle layout
   {
     selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form`,
     style: {
       width: '100%',
       display: 'flex',
       flexWrap: 'wrap',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',     // was 'space-between'
       marginTop: '22px',
     },
   },
-  // Make each form group take half width (ish) on wide viewports
-  {
-    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v6-c-form__group`,
-    style: {
-      flex: '1 1 48%',
-      minWidth: '300px',
-    },
-  },
-  // Ensure the inputs/selects inside the scoped form span 100% width
-  {
-    selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v5-c-form .pf-v5-c-form-control select`,
-    style: {
-      width: '100%',
-      boxSizing: 'border-box',
-    },
-  },
-  // Optional: if PF flex row is inline and cramping space, make it full width & wrap
+
+  // Turn the flex row into a 2-col grid (1/3, 2/3)
   {
     selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v5-l-flex, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v6-l-flex`,
-    style: { width: '100%', flexWrap: 'wrap', gap: 'var(--pf-v6-global--spacer--md)' },
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 2fr',   // 1/3 and 2/3
+      columnGap: 'var(--pf-v6-global--spacer--md)',
+      width: '100%',
+      alignItems: 'end',                // nice label/input alignment
+    },
   },
-  // Add margin above the result list
-  { selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > ul`, style: { marginTop: '22px' } },
+
+  // Let groups shrink inside the grid cells (important for long labels)
+  {
+    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody.replace('pf-v5','pf-v6')} > form .pf-v6-c-form__group`,
+    style: {
+      minWidth: 0,   // prevents overflow; allows inputs to actually fill
+      flex: 'initial' // neutralize previous flex: 1 1 48%
+    },
+  },
+
+  // Inputs/selects should fill their cell (you already have this; keep it)
+  {
+    selector: `${searchImageModalBody.replace('pf-v5','pf-v6')} > form .pf-v5-c-form-control input, ${searchImageModalBody.replace('pf-v5','pf-v6')} > form .pf-v5-c-form-control select`,
+    style: { width: '100%', boxSizing: 'border-box' },
+  },
 ];
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const appEl = document.getElementById('app');
