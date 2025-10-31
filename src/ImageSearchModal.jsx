@@ -784,7 +784,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
         </>
       }
     >
-      <Form isHorizontal>
+      <Form id="search-image-dialog-registry" isHorizontal>
         {dialogError && <ErrorNotification errorMessage={dialogError} errorDetail={dialogErrorDetail} />}
 
         <Flex spaceItems={{ default: 'inlineFlex', modifier: 'spaceItemsXl' }}>
