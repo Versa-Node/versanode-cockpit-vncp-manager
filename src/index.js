@@ -18,7 +18,7 @@ const createContainerModalIntegrationTab =
 
 const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
-  { selector: createContainerModalIntegrationTab, from: 'pf-v5', to: 'pf-v6', levels: 10 },
+  { selector: createContainerModalIntegrationTab, from: 'pf-v5', to: 'pf-v6', levels: -1 },
 
   // Swap all PFv5 → PFv6 classes in the search modal body subtree
   { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: -1 },

@@ -66,21 +66,32 @@ function sweep(root, from, to, allowFn, levels = -1, current = 0) {
 export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive = () => true } = {}) {
   const applyStyles = () => {
     styleRules.forEach(({ selector, style }) => {
-      document.querySelectorAll(selector).forEach(el => {
-        Object.assign(el.style, style || {});
-      });
+      document.querySelectorAll(selector).forEach(el => Object.assign(el.style, style || {}));
     });
   };
 
-  const applySwapsNow = (root = document) => {
+  const sweepSelection = (anchor, rule) => {
+    if (!anchor) return;
+    const { from, to, levels = -1, allow } = rule;
+    sweep(anchor, from, to, allow, levels);
+  };
+
+  // Run swaps for all matches in a root subtree and, optionally, an anchor
+  const applySwapsNow = (root = document, anchorPerRule = null) => {
     if (!isActive()) return;
 
-    swapRules.forEach(rule => {
-      const { selector, from, to, levels = -1, allow } = rule;
+    swapRules.forEach((rule) => {
+      const { selector } = rule;
+
+      // 1) If an explicit anchor for this rule is passed, sweep it first
+      const anchor = anchorPerRule?.get?.(rule);
+      if (anchor) sweepSelection(anchor, rule);
+
+      // 2) Also sweep any matches *inside* root
       const nodes = (root === document)
         ? document.querySelectorAll(selector)
-        : (root.matches?.(selector) ? [root] : root.querySelectorAll?.(selector) || []);
-      nodes.forEach(node => sweep(node, from, to, allow, levels));
+        : (root.querySelectorAll?.(selector) || []);
+      nodes.forEach(node => sweepSelection(node, rule));
     });
   };
 
@@ -88,20 +99,31 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
   applySwapsNow();
   applyStyles();
 
-  // MutationObserver to watch for dynamic content (like PF modals)
   const obs = new MutationObserver(muts => {
     if (!isActive()) return;
+
     for (const m of muts) {
-      if (m.type === 'childList') {
+      if (m.type === 'childList' && m.addedNodes?.length) {
         m.addedNodes.forEach(n => {
           if (n.nodeType !== 1) return;
-          applySwapsNow(n);
+
+          // For each rule, try to find the nearest ancestor that matches.
+          const anchorPerRule = new Map();
+          swapRules.forEach(rule => {
+            const { selector } = rule;
+            const anc = n.closest?.(selector) || (n.matches?.(selector) ? n : null);
+            if (anc) anchorPerRule.set(rule, anc);
+          });
+
+          // Apply swaps both from anchors (ancestors) and within the new subtree
+          applySwapsNow(n, anchorPerRule);
           applyStyles();
         });
       } else if (m.type === 'attributes' && m.attributeName === 'class') {
-        swapRules.forEach(({ selector, from, to, levels = -1, allow }) => {
-          if (m.target.matches?.(selector)) {
-            sweep(m.target, from, to, allow, levels);
+        // If the mutated element matches any selector, sweep from that element
+        swapRules.forEach(rule => {
+          if (m.target.matches?.(rule.selector)) {
+            sweepSelection(m.target, rule);
           }
         });
       }
@@ -117,6 +139,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   return () => obs.disconnect();
 }
+
 
 /**
  * Safely quote a string for /bin/sh so it can be embedded in a single command line.
