@@ -4,18 +4,38 @@
 import { enableSelectorSwaps } from "./util.js";
 
 /* =========================
+   Debug helpers
+   ========================= */
+
+const DEBUG = (() => {
+  try { return Boolean(window.__VNCP_DEBUG ?? true); } catch { return true; }
+})();
+function dlog(...args) { if (DEBUG) try { console.log("[VNCP]", ...args); } catch {} }
+function dgroup(label, collapsed = true) {
+  if (!DEBUG) return { end(){} };
+  try {
+    (collapsed ? console.groupCollapsed : console.group)(`[VNCP] ${label}`);
+    return { end(){ try { console.groupEnd(); } catch {} } };
+  } catch { return { end(){} }; }
+}
+
+/* =========================
    Selectors (PF5 + PF6)
    ========================= */
 
-// Integration tab <section> base (PF5 + PF6)
+// Integration tab <section> base (PF5 + PF6) – still used by some style rules
 const integrationSectionPF5 =
   'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 const integrationSectionPF6 =
   'section.pf-v6-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 
-// Any PF grid we care about (PF5 or PF6), with gutter (limit scope to PF6 section per your note)
-const anyGridWithGutter =
-  `${integrationSectionPF6} .pf-m-gutter.pf-v5-l-grid, ${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`;
+// IMPORTANT: Global anchor for any PF grid with gutter (PF5/PF6) – order agnostic
+const anyGridWithGutterGlobal = [
+  ".pf-v5-l-grid.pf-m-gutter",
+  ".pf-m-gutter.pf-v5-l-grid",
+  ".pf-v6-l-grid.pf-m-gutter",
+  ".pf-m-gutter.pf-v6-l-grid",
+].join(", ");
 
 // For styling grids (PF5 + PF6)
 const integrationGridsSelector =
@@ -30,9 +50,9 @@ const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
    Helpers
    ========================= */
 
-// Minimal class swapper (pf-v5-* → pf-v6-*)
+// Minimal class swapper (pf-v5-* → pf-v6-*) with stats
 function rewriteClassList(el, from, to, allowFn = null) {
-  if (!el || !el.classList) return;
+  if (!el || !el.classList) return { removed: 0, added: 0 };
   const adds = [], removes = [];
   el.classList.forEach(cls => {
     if (!cls.startsWith(from)) return;
@@ -42,22 +62,30 @@ function rewriteClassList(el, from, to, allowFn = null) {
   });
   removes.forEach(c => el.classList.remove(c));
   adds.forEach(c => el.classList.add(c));
+  return { removed: removes.length, added: adds.length };
 }
 
-// Depth-first sweep (optionally exclude the anchor)
+// Depth-first sweep (optionally exclude the anchor). Returns total stats.
 function sweep(root, from, to, allowFn, includeSelf = true) {
-  if (!root) return;
-  if (includeSelf) rewriteClassList(root, from, to, allowFn);
+  if (!root) return { removed: 0, added: 0, nodes: 0 };
+  let removed = 0, added = 0, nodes = 0;
+  const apply = (node, inc = true) => {
+    const s = rewriteClassList(node, from, to, allowFn);
+    removed += s.removed; added += s.added; nodes += inc ? 1 : 0;
+  };
+  if (includeSelf) apply(root);
   for (const child of root.children || []) {
-    rewriteClassList(child, from, to, allowFn);
-    sweep(child, from, to, allowFn, true);
+    apply(child);
+    const s = sweep(child, from, to, allowFn, true);
+    removed += s.removed; added += s.added; nodes += s.nodes;
   }
+  return { removed, added, nodes };
 }
 
-// Wrap every direct child of a node (once)
+// Wrap every direct child of a node (once), returning wrapper count
 function lowerChildrenOneLevel(node) {
-  if (!node || node.nodeType !== 1) return;
-  if (node.dataset?.vncpLowered === "1") return;
+  if (!node || node.nodeType !== 1) return 0;
+  if (node.dataset?.vncpLowered === "1") return 0;
   const kids = Array.from(node.children);
   kids.forEach(child => {
     const wrapper = document.createElement("div");
@@ -65,28 +93,57 @@ function lowerChildrenOneLevel(node) {
     wrapper.appendChild(child);
   });
   node.dataset.vncpLowered = "1";
+  return kids.length;
 }
 
-// Force grid → PF6, lower children, then swap descendants pf-v5→pf-v6
+// Force grid → PF6, lower children, then swap descendants pf-v5→pf-v6, with debug
 function lowerAndSweepUnderGrid(gridEl, rule) {
-  // Only change the grid class if it's a grid class
-  rewriteClassList(gridEl, "pf-v5", "pf-v6", (cls) => cls.startsWith("pf-v5-l-grid"));
-  lowerChildrenOneLevel(gridEl);
-  // Convert everything under the grid (exclude the grid itself)
-  sweep(gridEl, rule.from, rule.to, rule.allow, /*includeSelf*/ false);
+  const g = dgroup("PF grid anchor transform");
+  try {
+    if (!gridEl) return;
+
+    // 1) Bump the anchor grid class to PF6 (only if it's a PF5 grid)
+    const gridSwap = rewriteClassList(
+      gridEl,
+      "pf-v5",
+      "pf-v6",
+      (cls) => cls.startsWith("pf-v5-l-grid")
+    );
+
+    // 2) Lower direct children one level
+    const wrapped = lowerChildrenOneLevel(gridEl);
+
+    // 3) Convert everything under the grid (exclude the grid itself)
+    const deep = sweep(gridEl, rule.from, rule.to, rule.allow, /*includeSelf*/ false);
+
+    dlog("Grid anchor:", gridEl);
+    dlog("Class swap (anchor):", gridSwap);
+    dlog("Children wrapped:", wrapped);
+    dlog("Descendant sweep:", deep);
+  } finally {
+    g.end();
+  }
 }
 
 /* =========================
    Swap rules
    ========================= */
 
-// Convert below PF grid (limit to PF6 section scope)
+// Convert anything below ANY PF grid with gutter (global, order-agnostic)
 const convertBelowGrid = {
-  selector: anyGridWithGutter,
+  selector: anyGridWithGutterGlobal,
   from: "pf-v5",
   to: "pf-v6",
   includeSelf: false, // never touch the grid node in the sweep
   _apply(anchor) {
+    // Extra sanity: confirm the anchor truly has both a grid class and pf-m-gutter
+    const hasGutter = anchor.classList.contains("pf-m-gutter");
+    const isPF5Grid = anchor.classList.contains("pf-v5-l-grid");
+    const isPF6Grid = anchor.classList.contains("pf-v6-l-grid");
+    if (!hasGutter || (!isPF5Grid && !isPF6Grid)) {
+      dlog("Skipped anchor (not a PF grid with gutter):", anchor);
+      return;
+    }
     lowerAndSweepUnderGrid(anchor, this);
   }
 };
@@ -97,7 +154,21 @@ const shallowModalFlip = {
   from: "pf-v5",
   to: "pf-v6",
   levels: 1,
-  includeSelf: true
+  includeSelf: true,
+  _apply(anchor) {
+    const g = dgroup("Modal body shallow PF flip");
+    try {
+      // Only flip the immediate body & its first-level children
+      const selfStats = rewriteClassList(anchor, this.from, this.to);
+      let level1 = { removed: 0, added: 0, nodes: 0 };
+      for (const child of Array.from(anchor.children || [])) {
+        const s = rewriteClassList(child, this.from, this.to);
+        level1.removed += s.removed; level1.added += s.added; level1.nodes++;
+      }
+      dlog("Anchor:", anchor);
+      dlog("Self:", selfStats, "Level-1:", level1);
+    } finally { g.end(); }
+  }
 };
 
 // Use these rules
@@ -148,7 +219,7 @@ const styleRules = [
   // Margin above results list
   { selector: `${searchBodyPF6} > ul`, style: { marginTop: "22px" } },
 
-  // Enforce a robust 12-col grid on PF grids (PF5 + PF6)
+  // Enforce a robust 12-col grid on PF grids (PF5 + PF6) – only in the integration sections
   {
     selector: integrationGridsSelector,
     style: {
@@ -176,12 +247,32 @@ const styleRules = [
 /**
  * Starts PatternFly alterations (PF5→PF6 class swaps and style patches)
  * and returns a stop() function to undo observers.
+ *
+ * Debugging:
+ *   window.__VNCP_DEBUG = true  // enable (default)
+ *   window.__VNCP_DEBUG = false // disable
  */
 export function enablePatternflyAlterations() {
-  // Delegate to the existing util helper that wires MutationObservers and styles.
-  return enableSelectorSwaps({ swapRules, styleRules });
+  dlog("PatternFly alterations starting…");
+  const stop = enableSelectorSwaps({ swapRules, styleRules, debug: DEBUG });
+  // Safety: also proactively process any currently present anchors once
+  try {
+    document.querySelectorAll(anyGridWithGutterGlobal).forEach((el) => convertBelowGrid._apply(el));
+  } catch {}
+  dlog("PatternFly alterations active.");
+  return () => { dlog("PatternFly alterations stopping…"); try { stop?.(); } catch {} };
 }
 
-// (Optional) named exports if you want granular control elsewhere
+// Optional exports for inspection in devtools
 export const __vncpSwapRules = swapRules;
 export const __vncpStyleRules = styleRules;
+export const __vncpHelpers = {
+  rewriteClassList,
+  sweep,        
+    lowerChildrenOneLevel,
+    lowerAndSweepUnderGrid, 
+};
+/* =========================
+   End of File
+   ========================= */
+   
