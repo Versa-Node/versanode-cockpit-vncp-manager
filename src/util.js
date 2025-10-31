@@ -18,6 +18,8 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 
+// --- Class swap utilities with includeSelf support ---
+
 function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return;
   const adds = [], removes = [];
@@ -41,7 +43,7 @@ function rewriteClassList(el, from, to, allowFn = null) {
  * @param {function} allowFn
  * @param {number} levels  -1 = all
  * @param {number} current
- * @param {boolean} includeSelf
+ * @param {boolean} includeSelf - whether to rewrite classes on the starting node
  */
 function sweep(root, from, to, allowFn, levels = -1, current = 0, includeSelf = true) {
   if (!root) return;
@@ -52,12 +54,19 @@ function sweep(root, from, to, allowFn, levels = -1, current = 0, includeSelf = 
   if (levels === 0 || (levels > 0 && current >= levels)) return;
 
   for (const child of root.children) {
-    // always include children (includeSelf only applies to the starting node)
+    // always process children
     rewriteClassList(child, from, to, allowFn);
     sweep(child, from, to, allowFn, levels, current + 1, true);
   }
 }
 
+/**
+ * swapRules: [
+ *   { selector, from, to, levels=-1, allow, includeSelf=true }
+ * ]
+ * styleRules: [{ selector, style: { ...cssProps } }]
+ * isActive: optional ()=>boolean guard
+ */
 export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive = () => true } = {}) {
   const applyStyles = () => {
     styleRules.forEach(({ selector, style }) => {
@@ -101,7 +110,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
         m.addedNodes.forEach(n => {
           if (n.nodeType !== 1) return;
 
-          // for each rule, find nearest ancestor *or the section itself*
+          // for each rule, find nearest ancestor or the node itself
           const anchorPerRule = new Map();
           swapRules.forEach(rule => {
             const { selector } = rule;
@@ -109,17 +118,14 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
             if (anc) anchorPerRule.set(rule, anc);
           });
 
-          // sweep from anchors and the whole new subtree
+          // sweep from anchors and the new subtree
           applySwapsNow(n, anchorPerRule);
           applyStyles();
         });
       } else if (m.type === 'attributes' && m.attributeName === 'class') {
-        // if a descendant in the integration section changes class,
-        // resweep from the section body anchor to catch it
+        // resweep if target or any ancestor matches a rule selector
         swapRules.forEach(rule => {
-          const { selector } = rule;
-          // resweep if either the target *or its ancestor* matches the rule selector
-          const anc = m.target.closest?.(selector);
+          const anc = m.target.closest?.(rule.selector);
           if (anc) sweepSelection(anc, rule);
         });
       }
@@ -135,6 +141,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   return () => obs.disconnect();
 }
+
 
 /**
  * Safely quote a string for /bin/sh so it can be embedded in a single command line.

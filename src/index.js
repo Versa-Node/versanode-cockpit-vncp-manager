@@ -14,12 +14,17 @@ import { enableSelectorSwaps } from "./util.js";
 const searchImageModalBody =
   'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
 
-// Integration tab <section> (PF5 class in your DOM sample) + PF6 variant
+// Integration tab <section> base (we support both PF5/PF6 on the section)
 const integrationSectionPF5 =
   'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 const integrationSectionPF6 = integrationSectionPF5.replace("pf-v5", "pf-v6");
 
-// PF grid containers inside Integration tab (PF5 + PF6)
+// EXACT requirement: find the PF6 grid container and only swap **under** it
+// (exclude the grid node itself)
+const integrationGridRoot =
+  `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`;
+
+// For layout styling we can still address both PF5/PF6 grids
 const integrationGridsSelector =
   `${integrationSectionPF5} .pf-v5-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
 
@@ -28,16 +33,17 @@ const integrationGridsSelector =
    ========================= */
 
 const swapRules = [
-  // Swap the entire Integration tab section subtree (flip the section itself too)
+  // Only convert pf-v5-* → pf-v6-* on descendants of the PF6 grid.
+  // We set includeSelf:false on the grid anchor so the grid itself is NOT rewritten.
   {
-    selector: `${integrationSectionPF5}, ${integrationSectionPF6}`,
+    selector: integrationGridRoot,
     from: "pf-v5",
     to: "pf-v6",
     levels: -1,
-    includeSelf: true,
+    includeSelf: false, // <-- do NOT touch the grid node
   },
 
-  // Swap PFv5 → PFv6 inside the search modal body (one level deep)
+  // Keep: PFv5 → PFv6 inside the search modal body (one level deep)
   {
     selector: searchImageModalBody,
     from: "pf-v5",
@@ -94,6 +100,7 @@ const styleRules = [
   { selector: `${searchBodyPF6} > ul`, style: { marginTop: "22px" } },
 
   // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6)
+  // (Styling the grid node is fine; we are only excluding it from class rewriting.)
   {
     selector: integrationGridsSelector,
     style: {
