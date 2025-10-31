@@ -9,7 +9,7 @@ import { enableSelectorSwaps } from './util.js';
 // UI replacements here
 const swapRules = [
   // Swap class
-  { selector: '#run-image-dialog-volume-0', from: 'pf-v5-', to: 'pf-v6-', deep: false },
+  { selector: '#run-image-dialog-volume-0', from: 'pf-v5', to: 'pf-v6'},
   { selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6' },
   { selector: 'search-image-dialog-registry', from: 'pf-v5', to: 'pf-v6' , deep: false },
 ];
