@@ -7,6 +7,38 @@ import "./docker.scss";
 import { enableSelectorSwaps } from "./util.js";
 
 /* =========================
+   Env helpers for reload
+   ========================= */
+
+function readEnv(name, fallback) {
+  // Runtime override (put values in window.__VNCP_ENV = { KEY: "value" })
+  const winVal = typeof window !== "undefined" && window.__VNCP_ENV && window.__VNCP_ENV[name];
+  if (winVal !== undefined && winVal !== null) return String(winVal);
+
+  // Build-time (Webpack/Vite define)
+  // NOTE: your bundler must expose process.env.VARIABLES
+  const proc = (typeof process !== "undefined" && process.env) ? process.env[name] : undefined;
+  if (proc !== undefined && proc !== null) return String(proc);
+
+  return String(fallback);
+}
+
+function parseBoolEnv(name, fallback = "true") {
+  const v = readEnv(name, fallback).trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "y" || v === "on";
+}
+
+function parseIntEnv(name, fallback = "10") {
+  const v = parseInt(readEnv(name, fallback), 10);
+  return Number.isFinite(v) ? v : parseInt(fallback, 10);
+}
+
+// Auto-reload toggles (like your shell script style)
+const RELOAD_IF_CHANGE_DETECT_ENABLE = parseBoolEnv("VERSANODE_WEB_CODE_RELOAD_IF_CHANGE_DETECT_ENABLE", "true");
+const RELOAD_IF_CHANGE_DETECT_TIME_SECS   = parseIntEnv("VERSANODE_WEB_CODE_RELOAD_IF_CHANGE_DETECT_TIME_SECS", "10");
+const RELOAD_IF_CHANGE_DETECT_TIME_MS     = Math.max(1000, RELOAD_IF_CHANGE_DETECT_TIME_SECS * 1000);
+
+/* =========================
    Selectors (PF5 + PF6)
    ========================= */
 
@@ -120,7 +152,7 @@ const styleRules = [
   // Margin above results list
   { selector: `${searchBodyPF6} > ul`, style: { marginTop: "22px" } },
 
-  // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6).
+  // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6)
   // Styling the grid is fine; we only exclude it from class rewriting.
   {
     selector: integrationGridsSelector,
@@ -146,7 +178,7 @@ const styleRules = [
    Route-change reloader (SPA)
    ========================= */
 
-const FULL_RELOAD_ON_ROUTE_CHANGE = false; // true => hard reload
+const FULL_RELOAD_IF_CHANGE_DETECT_ON_ROUTE_CHANGE = false; // true => hard reload
 
 function patchHistory() {
   const fire = () => window.dispatchEvent(new Event("routechange"));
@@ -317,18 +349,27 @@ document.addEventListener("DOMContentLoaded", () => {
   mount();
 
   // Auto page reload when source files change (not DOM attribute changes)
-  const stopCodeReload = enableCodeChangeReload({
-    intervalMs: 10000,
-    // Optional: publish a tiny build-id file and include it here:
-    // extraVersionPaths: ["/app-version.txt"],
-  });
-
-  window.addEventListener("beforeunload", () => {
-    stopCodeReload();
-  });
+  if (RELOAD_IF_CHANGE_DETECT_ENABLE) {
+    const stopCodeReload = enableCodeChangeReload({
+      intervalMs: RELOAD_IF_CHANGE_DETECT_TIME_MS,
+      // Optional: publish a tiny build-id file and include it here:
+      // extraVersionPaths: ["/app-version.txt"],
+    });
+    window.addEventListener("beforeunload", () => {
+      stopCodeReload();
+    });
+    // Optional debug log
+    try {
+      console.log(
+        `[VNCP] Code reload enabled: interval ${Math.round(RELOAD_IF_CHANGE_DETECT_TIME_MS / 1000)}s`
+      );
+    } catch {}
+  } else {
+    try { console.log("[VNCP] Code reload disabled by env"); } catch {}
+  }
 
   window.addEventListener("routechange", () => {
-    if (FULL_RELOAD_ON_ROUTE_CHANGE) {
+    if (FULL_RELOAD_IF_CHANGE_DETECT_ON_ROUTE_CHANGE) {
       const prev = sessionStorage.getItem("__last_path__");
       const next = `${location.pathname}${location.search}${location.hash}`;
       if (prev !== next) {
