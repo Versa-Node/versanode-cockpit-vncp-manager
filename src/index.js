@@ -7,8 +7,12 @@ import './docker.scss';
 import { enableSelectorSwaps } from './util.js';
 
 // UI replacements here
-const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body'
-const createContainerModalIntegrationTab = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].c-tab-content'
+const searchImageModalBody =
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body, ' +
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v6-c-modal-box__body';
+
+const createContainerModalIntegrationTab = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content, ' +
+                                           'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v6-c-tab-content';
 const swapRules = [
   // Swap class
   //{ selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
