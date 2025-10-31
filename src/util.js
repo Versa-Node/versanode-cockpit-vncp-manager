@@ -17,8 +17,6 @@ export const WithDockerInfo = ({ value, children }) => {
         </DockerInfoContext.Provider>
     );
 };
-// util.js
-
 function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return;
   const adds = [], removes = [];
@@ -42,23 +40,29 @@ function rewriteClassList(el, from, to, allowFn = null) {
  * @param {function} allowFn - optional allow filter
  * @param {number} levels - recursion depth (-1 = all)
  * @param {number} current - internal counter
+ * @param {boolean} includeSelf - whether to swap on the root itself
  */
-function sweep(root, from, to, allowFn, levels = -1, current = 0) {
+function sweep(root, from, to, allowFn, levels = -1, current = 0, includeSelf = true) {
   if (!root) return;
-  rewriteClassList(root, from, to, allowFn);
+
+  // If includeSelf is false, skip rewriting the root (current === 0),
+  // but still rewrite all descendants.
+  if (includeSelf || current > 0) {
+    rewriteClassList(root, from, to, allowFn);
+  }
 
   // Stop recursion if levels == 0 or max depth reached
   if (levels === 0 || (levels > 0 && current >= levels)) return;
 
   for (const child of root.children) {
-    sweep(child, from, to, allowFn, levels, current + 1);
+    sweep(child, from, to, allowFn, levels, current + 1, includeSelf);
   }
 }
 
 
 /**
  * swapRules: [
- *   { selector, from, to, levels=-1, allow /* optional: (cls)=>boolean *\/ }
+ *   { selector, from, to, levels=-1, allow /* optional: (cls)=>boolean *\/, includeSelf /* default true *\/ }
  * ]
  * styleRules: [{ selector, style: { ...cssProps } }]
  * isActive: optional ()=>boolean guard
@@ -72,8 +76,8 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   const sweepSelection = (anchor, rule) => {
     if (!anchor) return;
-    const { from, to, levels = -1, allow } = rule;
-    sweep(anchor, from, to, allow, levels);
+    const { from, to, levels = -1, allow, includeSelf = true } = rule;
+    sweep(anchor, from, to, allow, levels, 0, includeSelf);
   };
 
   // Run swaps for all matches in a root subtree and, optionally, an anchor
