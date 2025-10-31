@@ -19,7 +19,7 @@ const createContainerModalIntegrationTabBody = 'section.pf-v5-c-tab-content[id^=
 // === Swap rules ===
 const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
-  { selector: createContainerModalIntegrationTabBody, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
+  { selector: createContainerModalIntegrationTabBody + String.replace("pf-v5-c-form__field-group-body", "pf-v6-c-form__field-group-body") + ", " + createContainerModalIntegrationTabBody, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
 
   // Swap all PFv5 → PFv6 classes in the search modal body subtree
   { selector: searchImageModalBody, from: "pf-v5", to: "pf-v6", levels: 1, includeSelf: true },
