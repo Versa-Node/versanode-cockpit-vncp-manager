@@ -17,7 +17,10 @@ const searchImageModalBody =
 // Integration tab <section> base (we support both PF5/PF6 on the section)
 const integrationSectionPF5 =
   'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
-const integrationSectionPF6 = integrationSectionPF5.replace("pf-v5", "pf-v6");
+// Integration tab (PF6) section root
+const integrationSectionPF6 =
+  'section.pf-v6-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
+
 
 // EXACT requirement: find the PF6 grid container and only swap **under** it
 // (exclude the grid node itself)
@@ -76,6 +79,19 @@ const convertDescendantsRule = {
 // Insert at the top to ensure the preflip runs before other rules
 swapRules.unshift(preflipGridRule);
 swapRules.push(convertDescendantsRule);
+
+// Convert descendants under any PF6 grid with pf-m-gutter, but not the grid itself
+const convertUnderV6Grid = {
+  selector: `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`,
+  from: "pf-v5",
+  to: "pf-v6",
+  levels: -1,         // recurse through all children
+  includeSelf: false, // do NOT touch the top grid element
+};
+
+// Make sure this rule is in your swapRules
+swapRules.push(convertUnderV6Grid);
+
 
 
 /* =========================
