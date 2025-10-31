@@ -746,7 +746,7 @@ class Containers extends React.Component {
           <Flex direction={{ default: 'column' }}>
             {(this.props.containers === null)
               ? <ListingTable variant='compact'
-                              aria-label={_("Containers")}
+                              aria-label={_("Containerz")}
                               emptyCaption={emptyCaption}
                               columns={columnTitles}
                               sortMethod={sortRows}
