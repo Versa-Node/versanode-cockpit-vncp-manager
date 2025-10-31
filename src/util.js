@@ -18,110 +18,71 @@ export const WithDockerInfo = ({ value, children }) => {
     );
 };
 
-// util.js
-const ALLOWED_AFTER_PREFIX = ['l-flex', 'l-grid', 'c-form'];
-
-function shouldSwap(cls) {
-  if (!cls.startsWith('pf-v5-')) return false;
-  const after = cls.slice('pf-v5-'.length);
-  return ALLOWED_AFTER_PREFIX.some(
-    p => after === p || after.startsWith(p + '-') || after.startsWith(p + '__')
-  );
-}
-
-function rewriteClassList(el) {
+function swapClassTokens(el, fromPrefix, toPrefix) {
   if (!el || !el.classList) return;
-  const toAdd = [], toRemove = [];
-  el.classList.forEach((cls) => {
-    if (shouldSwap(cls)) {
-      toRemove.push(cls);
-      toAdd.push('pf-v6-' + cls.slice('pf-v5-'.length));
+  const add = [];
+  const remove = [];
+  el.classList.forEach(cls => {
+    if (cls.startsWith(fromPrefix)) {
+      remove.push(cls);
+      add.push(toPrefix + cls.slice(fromPrefix.length));
     }
   });
-  if (toRemove.length) {
-    toRemove.forEach(c => el.classList.remove(c));
-    toAdd.forEach(c => el.classList.add(c));
+  if (remove.length) {
+    remove.forEach(c => el.classList.remove(c));
+    add.forEach(c => el.classList.add(c));
   }
 }
 
-function sweep(root) {
+function sweepTree(root, fromPrefix, toPrefix) {
   if (!root) return;
-  rewriteClassList(root);
-  root.querySelectorAll?.('[class*="pf-v5-"]').forEach(rewriteClassList);
+  swapClassTokens(root, fromPrefix, toPrefix);
+  root.querySelectorAll?.('[class]').forEach(node => swapClassTokens(node, fromPrefix, toPrefix));
+}
+
+function applyStyleRule({ selector, style }) {
+  if (!selector || !style) return;
+  document.querySelectorAll(selector).forEach(el => {
+    Object.assign(el.style, style);
+  });
+}
+
+function applySwapRule({ selector, from, to }) {
+  if (!selector || !from || !to) return;
+  document.querySelectorAll(selector).forEach(root => sweepTree(root, from, to));
 }
 
 /**
- * Enable PFv5→PFv6 class swapping scoped to:
- *  - all provided roots (and their descendants)
- *  - any PF modal/backdrop that appears (portaled to <body>)
- *
- * @param {(string|Element)[]} roots
+ * Enable targeted PF class swaps and styles using rules.
+ * @param {Object} config
+ * @param {{selector:string, from:string, to:string}[]} config.swapRules
+ * @param {{selector:string, style:Object}[]} config.styleRules
  * @returns {() => void} stop function
  */
-export function enableScopedPfV5toV6Swap(roots = []) {
-  const rootEls = (Array.isArray(roots) ? roots : [roots])
-    .map(r => (typeof r === 'string' ? document.querySelector(r) : r))
-    .filter(Boolean);
+export function enableSelectorSwaps({ swapRules = [], styleRules = [] } = {}) {
+  const runAll = () => {
+    swapRules.forEach(applySwapRule);
+    styleRules.forEach(applyStyleRule);
+  };
 
-  // Initial sweep for each provided root
-  rootEls.forEach(sweep);
+  // Initial run
+  runAll();
 
-  // Observe each provided root for dynamic changes
-  const rootObservers = rootEls.map(root => {
-    const obs = new MutationObserver((muts) => {
-      for (const m of muts) {
-        if (m.type === 'attributes' && m.attributeName === 'class') {
-          rewriteClassList(m.target);
-        } else if (m.type === 'childList' && m.addedNodes?.length) {
-          m.addedNodes.forEach(n => {
-            if (n.nodeType === 1) sweep(n);
-          });
-        }
-      }
-    });
-    obs.observe(root, {
-      attributes: true,
-      attributeFilter: ['class'],
-      childList: true,
-      subtree: true,
-    });
-    return obs;
-  });
-
-  // Separate observer for PF modals/backdrops (portaled to <body>)
-  // We only rewrite inside the modal subtree, not globally.
-  const MODAL_SELECTOR = '.pf-v5-c-backdrop, .pf-v6-c-backdrop, .pf-v5-c-modal-box, .pf-v6-c-modal-box';
-
-  const bodyObserver = new MutationObserver((muts) => {
-    for (const m of muts) {
-      if (m.type === 'childList' && m.addedNodes?.length) {
-        m.addedNodes.forEach(n => {
-          if (n.nodeType !== 1) return;
-          if (n.matches?.(MODAL_SELECTOR)) {
-            sweep(n);
-          } else {
-            // If a container was added that contains a modal, sweep those too
-            n.querySelectorAll?.(MODAL_SELECTOR).forEach(sweep);
-          }
-        });
-      }
-      if (m.type === 'attributes' && m.attributeName === 'class') {
-        const el = m.target;
-        if (el.matches?.(MODAL_SELECTOR)) rewriteClassList(el);
-      }
-    }
-  });
-  bodyObserver.observe(document.body, {
+  // Re-run on DOM changes (for modals, tab switches, etc.)
+  const obs = new MutationObserver(() => runAll());
+  obs.observe(document.body, {
     childList: true,
     subtree: true,
     attributes: true,
     attributeFilter: ['class'],
   });
 
-  // Return stopper
+  // Also re-run after load (in case late content appears)
+  window.addEventListener('load', runAll);
+
   return () => {
-    rootObservers.forEach(o => o.disconnect());
-    bodyObserver.disconnect();
+    obs.disconnect();
+    window.removeEventListener('load', runAll);
   };
 }
 
