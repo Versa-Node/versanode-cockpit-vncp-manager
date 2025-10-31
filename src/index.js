@@ -9,7 +9,7 @@ import { enableSelectorSwaps } from './util.js';
 // PF5 + PF6 modal bodies for the search modal
 const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body' 
 // PF5 + PF6 tab-content element for the Create Container “Integration” tab
-const createContainerModalIntegrationTabBody = 'div[id^="run-image-dialog-"].pf-v5-l-grid pf-m-gutter'
+const createContainerModalIntegrationTabBody = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration] > div > div.pf-v5-c-form__field-group-body'
 
 const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
