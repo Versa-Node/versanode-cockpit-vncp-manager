@@ -13,42 +13,46 @@ import { enableSelectorSwaps } from "./util.js";
 // PF5 search modal body (we'll also derive the PF6 selector)
 const searchImageModalBody =
   'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
-
-// Integration tab <section> (PF5 class on section in your DOM sample)
+// Anchor at the tab section (both v5 and v6), then sweep everything under it
 const integrationSection =
   'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 
-// Each field-group body inside the Integration tab (PF5 + PF6)
-const integrationBodiesSelector = [
-  `${integrationSection} > div > div.pf-v5-c-form__field-group-body`,
-  `${integrationSection.replace("pf-v5", "pf-v6")} > div > div.pf-v6-c-form__field-group-body`,
-].join(", ");
+const integrationSectionV6 =
+  integrationSection.replace("pf-v5", "pf-v6");
 
-// PF grid containers inside Integration tab (PF5 + PF6)
-const integrationGridsSelector = [
-  `${integrationSection} .pf-v5-l-grid`,
-  `${integrationSection.replace("pf-v5", "pf-v6")} .pf-v6-l-grid`,
-].join(", ");
-
-/* =========================
-   Swap rules
-   ========================= */
-
+// Single rule that starts at the section, includes self, and recurses fully
 const swapRules = [
-  // Swap all PFv5 → PFv6 classes in each field-group body subtree (keep body node as-is)
-  { selector: integrationBodiesSelector, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
-
-  // Swap PFv5 → PFv6 inside the search modal body (one level deep)
-  { selector: searchImageModalBody, from: "pf-v5", to: "pf-v6", levels: 1, includeSelf: true },
+  {
+    selector: `${integrationSection}, ${integrationSectionV6}`,
+    from: "pf-v5",
+    to: "pf-v6",
+    levels: -1,
+    includeSelf: true,
+  },
+  {
+    selector: 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body',
+    from: "pf-v5",
+    to: "pf-v6",
+    levels: 1,
+    includeSelf: true,
+  },
 ];
 
-/* =========================
-   Styles
-   ========================= */
-
-const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
+// (Optional) styles that target both grid class variants inside the section
+const integrationGridsSelector =
+  `${integrationSection} .pf-v5-l-grid, ${integrationSectionV6} .pf-v6-l-grid`;
 
 const styleRules = [
+  {
+    selector: integrationGridsSelector,
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
+      // If PF6 var might not exist yet, add a fallback:
+      gap: "var(--pf-v6-global--spacer--md, var(--pf-v5-global--spacer--md, 16px))",
+      alignItems: "end",
+    },
+  },
   // Search form container (let inner row manage widths)
   {
     selector: `${searchBodyPF6} > form`,
