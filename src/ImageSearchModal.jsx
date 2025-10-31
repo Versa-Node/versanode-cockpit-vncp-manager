@@ -760,10 +760,9 @@ export const ImageSearchModal = ({ downloadImage }) => {
   };
 
   return (
-    <div id ="search-image-dialog-parent">
     <Modal
       isOpen
-      className="vncp-search-image"
+      className="vncp-image-search"
       position="top"
       variant="large"
       onClose={handleClose}
@@ -872,6 +871,5 @@ export const ImageSearchModal = ({ downloadImage }) => {
         </>
       )}
     </Modal>
-    </div>
   );
 };
