@@ -53,6 +53,31 @@ const swapRules = [
   },
 ];
 
+
+// 1) Upgrade just the grid node class so the anchor exists
+const preflipGridRule = {
+  selector: `${integrationSectionPF5} .pf-m-gutter.pf-v5-l-grid`,
+  from: "pf-v5",
+  to: "pf-v6",
+  levels: 0,            // don't recurse into children
+  includeSelf: true,    // operate on the grid itself
+  allow: (cls) => cls === "pf-v5-l-grid",  // only flip the grid class
+};
+
+// 2) Now convert descendants under the v6 grid (exclude the grid itself)
+const convertDescendantsRule = {
+  selector: `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`,
+  from: "pf-v5",
+  to: "pf-v6",
+  levels: -1,           // recurse through all descendants
+  includeSelf: false,   // don't touch the grid node itself
+};
+
+// Insert at the top to ensure the preflip runs before other rules
+swapRules.unshift(preflipGridRule);
+swapRules.push(convertDescendantsRule);
+
+
 /* =========================
    Styles
    ========================= */
