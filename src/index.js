@@ -21,32 +21,39 @@ const integrationSectionPF5 =
 const integrationSectionPF6 =
   'section.pf-v6-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 
-
 // EXACT requirement: find the PF6 grid container and only swap **under** it
 // (exclude the grid node itself)
-const integrationGridRoot =
-  `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`;
+const integrationGridRoot = `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`;
 
 // For layout styling we can still address both PF5/PF6 grids
-export const integrationGridsSelector =
+const integrationGridsSelector =
   `${integrationSectionPF5} .pf-v5-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
 
 /* =========================
    Swap rules
    ========================= */
 
-const swapRules = [
-  // Only convert pf-v5-* → pf-v6-* on descendants of the PF6 grid.
-  // We set includeSelf:false on the grid anchor so the grid itself is NOT rewritten.
-  {
-    selector: integrationGridRoot,
-    from: "pf-v5",
-    to: "pf-v6",
-    levels: -1,
-    includeSelf: false, // <-- do NOT touch the grid node
-  },
+// 1) Upgrade just the PF5 grid node class so the PF6 anchor exists (if page renders PF5)
+const preflipGridRule = {
+  selector: `${integrationSectionPF5} .pf-m-gutter.pf-v5-l-grid`,
+  from: "pf-v5",
+  to: "pf-v6",
+  levels: 0,          // do NOT recurse into children
+  includeSelf: true,  // only touch the grid node itself
+};
 
-  // Keep: PFv5 → PFv6 inside the search modal body (one level deep)
+// 2) Convert descendants under the PF6 grid (exclude the grid itself)
+const convertUnderV6Grid = {
+  selector: integrationGridRoot,
+  from: "pf-v5",
+  to: "pf-v6",
+  levels: -1,         // recurse through all descendants
+  includeSelf: false, // do NOT touch the top grid element
+};
+
+// Build the rules list (no duplicates)
+const swapRules = [
+  // PFv5 → PFv6 inside the search modal body (one level deep)
   {
     selector: searchImageModalBody,
     from: "pf-v5",
@@ -56,43 +63,11 @@ const swapRules = [
   },
 ];
 
-
-// 1) Upgrade just the grid node class so the anchor exists
-const preflipGridRule = {
-  selector: `${integrationSectionPF5} .pf-m-gutter.pf-v5-l-grid`,
-  from: "pf-v5",
-  to: "pf-v6",
-  levels: 0,            // don't recurse into children
-  includeSelf: true,    // operate on the grid itself
-  allow: (cls) => cls === "pf-v5-l-grid",  // only flip the grid class
-};
-
-// 2) Now convert descendants under the v6 grid (exclude the grid itself)
-const convertDescendantsRule = {
-  selector: `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`,
-  from: "pf-v5",
-  to: "pf-v6",
-  levels: -1,           // recurse through all descendants
-  includeSelf: false,   // don't touch the grid node itself
-};
-
-// Insert at the top to ensure the preflip runs before other rules
+// Ensure the PF5→PF6 grid preflip runs before others
 swapRules.unshift(preflipGridRule);
-swapRules.push(convertDescendantsRule);
 
-// Convert descendants under any PF6 grid with pf-m-gutter, but not the grid itself
-const convertUnderV6Grid = {
-  selector: `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`,
-  from: "pf-v5",
-  to: "pf-v6",
-  levels: -1,         // recurse through all children
-  includeSelf: false, // do NOT touch the top grid element
-};
-
-// Make sure this rule is in your swapRules
+// Add the single descendant conversion under PF6 grid
 swapRules.push(convertUnderV6Grid);
-
-
 
 /* =========================
    Styles
@@ -131,17 +106,22 @@ const styleRules = [
     style: { minWidth: 0, flex: "initial" },
   },
 
-  // Inputs/selects fill width
+  // Inputs/selects fill width (PF5 + PF6)
   {
-    selector: `${searchBodyPF6} > form .pf-v5-c-form-control input, ${searchBodyPF6} > form .pf-v5-c-form-control select`,
+    selector: `
+      ${searchBodyPF6} > form .pf-v5-c-form-control input,
+      ${searchBodyPF6} > form .pf-v5-c-form-control select,
+      ${searchBodyPF6} > form .pf-v6-c-form-control input,
+      ${searchBodyPF6} > form .pf-v6-c-form-control select
+    `,
     style: { width: "100%", boxSizing: "border-box" },
   },
 
   // Margin above results list
   { selector: `${searchBodyPF6} > ul`, style: { marginTop: "22px" } },
 
-  // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6)
-  // (Styling the grid node is fine; we are only excluding it from class rewriting.)
+  // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6).
+  // Styling the grid is fine; we only exclude it from class rewriting.
   {
     selector: integrationGridsSelector,
     style: {
