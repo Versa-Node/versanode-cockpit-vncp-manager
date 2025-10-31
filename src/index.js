@@ -6,48 +6,80 @@ import Application from './app.jsx';
 import './docker.scss';
 import { enableSelectorSwaps } from './util.js';
 
-// UI replacements here
-const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body, ' +
-                             'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v6-c-modal-box__body';
+// PF5 + PF6 modal bodies for the search modal
+const searchImageModalBody =
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body, ' +
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v6-c-modal-box__body';
 
-const createContainerModalIntegrationTab = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content, ' +
-                                           'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v6-c-tab-content';
+// PF5 + PF6 tab-content element for the Create Container “Integration” tab
+const createContainerModalIntegrationTab =
+  'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content, ' +
+  'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v6-c-tab-content';
+
 const swapRules = [
-  // Swap class
-  //{ selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
-  { selector: createContainerModalIntegrationTab, from: 'pf-v5', to: 'pf-v6', levels: -1},
-  { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: 1},
+  // Swap all PFv5 → PFv6 classes in the Integration tab subtree
+  { selector: createContainerModalIntegrationTab, from: 'pf-v5', to: 'pf-v6', levels: -1 },
+
+  // Swap all PFv5 → PFv6 classes in the search modal body subtree
+  { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: -1 },
 ];
 
 const styleRules = [
-   { selector: searchImageModalBody.replace('pf-v5', 'pf-v6') + ' > form', style: { marginTop: '22px' } },
-    { selector: searchImageModalBody + ' > ul', style: { marginTop: '22px' } },
+  // Make the form stretch and wrap nicely
+  {
+    selector: `${searchImageModalBody} > form`,
+    style: {
+      width: '100%',
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      marginTop: '22px',
+    },
+  },
+  // Make each form group take half width (ish) on wide viewports
+  {
+    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody} > form .pf-v6-c-form__group`,
+    style: {
+      flex: '1 1 48%',
+      minWidth: '300px',
+    },
+  },
+  // Ensure the inputs/selects inside the scoped form span 100% width
+  {
+    selector: `${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control select`,
+    style: {
+      width: '100%',
+      boxSizing: 'border-box',
+    },
+  },
+  // Optional: if PF flex row is inline and cramping space, make it full width & wrap
+  {
+    selector: `${searchImageModalBody} > form .pf-v5-l-flex, ${searchImageModalBody} > form .pf-v6-l-flex`,
+    style: { width: '100%', flexWrap: 'wrap', gap: 'var(--pf-v6-global--spacer--md)' },
+  },
+  // Add margin above the result list
+  { selector: `${searchImageModalBody} > ul`, style: { marginTop: '22px' } },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
   const appEl = document.getElementById('app');
   if (!appEl) return;
 
-  // Mount the app
   const root = createRoot(appEl);
   root.render(<Application />);
 
-  // Start PF swaps
+  // Start swaps (scoped + live via MutationObserver)
   const stopSwaps = enableSelectorSwaps({ swapRules, styleRules });
 
-  // --- Stop swaps automatically when app is no longer active ---
+  // Stop swaps when app unmounts or page navigates
   const observer = new MutationObserver(() => {
-    const stillPresent = document.body.contains(appEl);
-    if (!stillPresent) {
-      console.log('[PF Swap] App removed — stopping swaps.');
+    if (!document.body.contains(appEl)) {
       stopSwaps();
       observer.disconnect();
     }
   });
-
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Also stop if page unloads (e.g., cockpit navigates away)
   window.addEventListener('beforeunload', () => {
     stopSwaps();
     observer.disconnect();
