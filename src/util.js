@@ -76,6 +76,10 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   const sweepSelection = (anchor, rule) => {
     if (!anchor) return;
+    if (typeof rule._apply === "function") {
+      rule._apply(anchor);
+      return;
+    }
     const { from, to, levels = -1, allow, includeSelf = true } = rule;
     sweep(anchor, from, to, allow, levels, 0, includeSelf);
   };
@@ -86,11 +90,9 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
     swapRules.forEach((rule) => {
       const { selector } = rule;
 
-      // sweep provided anchor first
       const anchor = anchorPerRule?.get?.(rule);
       if (anchor) sweepSelection(anchor, rule);
 
-      // also sweep matches inside root
       const nodes = (root === document)
         ? document.querySelectorAll(selector)
         : (root.querySelectorAll?.(selector) || []);
@@ -110,7 +112,6 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
         m.addedNodes.forEach(n => {
           if (n.nodeType !== 1) return;
 
-          // for each rule, find nearest ancestor or the node itself
           const anchorPerRule = new Map();
           swapRules.forEach(rule => {
             const { selector } = rule;
@@ -118,12 +119,10 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
             if (anc) anchorPerRule.set(rule, anc);
           });
 
-          // sweep from anchors and the new subtree
           applySwapsNow(n, anchorPerRule);
           applyStyles();
         });
       } else if (m.type === 'attributes' && m.attributeName === 'class') {
-        // resweep if target or any ancestor matches a rule selector
         swapRules.forEach(rule => {
           const anc = m.target.closest?.(rule.selector);
           if (anc) sweepSelection(anc, rule);
@@ -141,6 +140,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   return () => obs.disconnect();
 }
+
 
 
 /**
