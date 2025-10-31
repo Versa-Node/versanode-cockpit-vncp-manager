@@ -1,27 +1,37 @@
 import "cockpit-dark-theme";
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import 'patternfly/patternfly-5-cockpit.scss';
-import Application from './app.jsx';
-import './docker.scss';
-import { enableSelectorSwaps } from './util.js';
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "patternfly/patternfly-5-cockpit.scss";
+import Application from "./app.jsx";
+import "./docker.scss";
+import { enableSelectorSwaps } from "./util.js";
 
 // PF5 + PF6 modal bodies for the search modal
-const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body' 
-// PF5 + PF6 tab-content element for the Create Container “Integration” tab
-const createContainerModalIntegrationTabBodyn =
-  'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"] > div.pf-m-gutter pf-v5-l-grid';
+const searchImageModalBody =
+  'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
 
-const createContainerModalIntegrationTabBody = 'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"] > div > div.pf-v5-c-form__field-group-body';
-//                                      ^ closing " ]                    ^ space for descendant combinator (likely)
+// Integration tab <section> (PF5 class on section in your DOM sample)
+const integrationSection =
+  'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
 
+// Each field-group body inside the Integration tab (PF5 + PF6)
+const integrationBodiesSelector = [
+  `${integrationSection} > div > div.pf-v5-c-form__field-group-body`,
+  `${integrationSection.replace("pf-v5", "pf-v6")} > div > div.pf-v6-c-form__field-group-body`,
+].join(", ");
+
+// PF grid containers inside Integration tab (PF5 + PF6)
+const integrationGridsSelector = [
+  `${integrationSection} .pf-v5-l-grid`,
+  `${integrationSection.replace("pf-v5", "pf-v6")} .pf-v6-l-grid`,
+].join(", ");
 
 // === Swap rules ===
 const swapRules = [
-  // Swap all PFv5 → PFv6 classes in the Integration tab subtree
-  { selector: createContainerModalIntegrationTabBody + String.replace("pf-v5-c-form__field-group-body", "pf-v6-c-form__field-group-body") + ", " + createContainerModalIntegrationTabBody, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
+  // Swap all PFv5 → PFv6 classes in each field-group body subtree (keep parent as-is)
+  { selector: integrationBodiesSelector, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
 
-  // Swap all PFv5 → PFv6 classes in the search modal body subtree
+  // Swap PFv5 → PFv6 inside the search modal body (one level deep)
   { selector: searchImageModalBody, from: "pf-v5", to: "pf-v6", levels: 1, includeSelf: true },
 ];
 
@@ -29,7 +39,7 @@ const swapRules = [
 const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
 
 const styleRules = [
-  // Search form container (no space-between; grid inside will manage widths)
+  // Search form container (let inner row manage widths)
   {
     selector: `${searchBodyPF6} > form`,
     style: {
@@ -41,19 +51,19 @@ const styleRules = [
     },
   },
 
-  // Turn the inner flex row into a 1/3–2/3 grid
+  // Turn the inner row into a 1/3–2/3 grid
   {
     selector: `${searchBodyPF6} > form .pf-v5-l-flex, ${searchBodyPF6} > form .pf-v6-l-flex`,
     style: {
       display: "grid",
-      gridTemplateColumns: "1fr 2fr", // 1/3 : 2/3
+      gridTemplateColumns: "1fr 2fr",
       columnGap: "var(--pf-v6-global--spacer--md)",
       width: "100%",
       alignItems: "end",
     },
   },
 
-  // Let groups shrink so inputs can actually fill their track
+  // Allow groups to shrink so inputs can fill their track
   {
     selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchBodyPF6} > form .pf-v6-c-form__group`,
     style: { minWidth: 0, flex: "initial" },
@@ -65,13 +75,12 @@ const styleRules = [
     style: { width: "100%", boxSizing: "border-box" },
   },
 
-  // Add margin above the search results list
+  // Margin above results list
   { selector: `${searchBodyPF6} > ul`, style: { marginTop: "22px" } },
 
-  // --- Integration tab grid: ensure a robust 12-col grid after swaps ---
-  // Make each PF grid behave like a 12-col CSS grid (safe even post-swap)
+  // Integration tab: enforce a robust 12-col grid on PF grids (PF5 + PF6)
   {
-    selector: `${createContainerModalIntegrationTabBody.replace("pf-v5", "pf-v6")} .pf-v6-l-grid, ${createContainerModalIntegrationTabBody} .pf-v5-l-grid`,
+    selector: integrationGridsSelector,
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
@@ -80,9 +89,9 @@ const styleRules = [
     },
   },
 
-  // Ensure field groups can shrink within their grid cells
+  // Ensure field groups can shrink inside their cells
   {
-    selector: `${createContainerModalIntegrationTabBody} .pf-v5-c-form__group, ${createContainerModalIntegrationTabBody.replace("pf-v5", "pf-v6")} .pf-v6-c-form__group`,
+    selector: `${integrationBodiesSelector} .pf-v5-c-form__group, ${integrationBodiesSelector.replace(/pf-v5/g, "pf-v6")} .pf-v6-c-form__group`,
     style: { minWidth: 0 },
   },
 ];
@@ -94,16 +103,8 @@ function patchHistory() {
   const fire = () => window.dispatchEvent(new Event("routechange"));
   const push = history.pushState;
   const replace = history.replaceState;
-  history.pushState = function (...args) {
-    const r = push.apply(this, args);
-    fire();
-    return r;
-  };
-  history.replaceState = function (...args) {
-    const r = replace.apply(this, args);
-    fire();
-    return r;
-  };
+  history.pushState = function (...args) { const r = push.apply(this, args); fire(); return r; };
+  history.replaceState = function (...args) { const r = replace.apply(this, args); fire(); return r; };
   window.addEventListener("popstate", fire);
   window.addEventListener("hashchange", fire);
 }
@@ -118,7 +119,7 @@ function mount() {
 
   if (!root) root = createRoot(appEl);
 
-  // Key forces a full React remount on soft reloads
+  // Force full React remount on soft reloads
   root.render(<Application key={`route-${mountKey++}`} />);
 
   // Start swaps + live observer
@@ -133,24 +134,15 @@ function mount() {
   });
   unmountGuard.observe(document.body, { childList: true, subtree: true });
 
-  window.addEventListener(
-    "beforeunload",
-    () => {
-      stopSwaps?.();
-      unmountGuard.disconnect();
-    },
-    { once: true }
-  );
+  window.addEventListener("beforeunload", () => {
+    stopSwaps?.();
+    unmountGuard.disconnect();
+  }, { once: true });
 }
 
 function unmount() {
-  try {
-    stopSwaps?.();
-  } catch {}
-  if (root) {
-    root.unmount();
-    root = null;
-  }
+  try { stopSwaps?.(); } catch {}
+  if (root) { root.unmount(); root = null; }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -172,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     queueMicrotask(mount);
   });
 
-  // (Optional) Dev HMR hook – uncomment if your bundler supports it
+  // // Optional: Dev HMR hook
   // if (import.meta?.hot) {
   //   import.meta.hot.accept(() => { unmount(); mount(); });
   //   import.meta.hot.dispose(() => { unmount(); });
