@@ -11,6 +11,7 @@ import { cockpitRsyncEsbuildPlugin } from './pkg/lib/cockpit-rsync-plugin.js';
 import { cleanPlugin } from './pkg/lib/esbuild-cleanup-plugin.js';
 import { esbuildStylesPlugins } from './pkg/lib/esbuild-common.js';
 
+
 const useWasm = os.arch() !== 'x64';
 const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild'));
 
@@ -55,7 +56,8 @@ const context = await esbuild.context({
     entryPoints: ["./src/index.js"],
     external: ['*.woff', '*.woff2', '*.jpg', '*.svg', '../../assets*'], // Allow external font files which live in ../../static/fonts
     legalComments: 'external', // Move all legal comments to a .LEGAL.txt file
-    loader: { ".js": "jsx" },
+    loader: { ".js": "jsx", ".css": "css" },
+    resolveExtensions: [".tsx", ".ts", ".jsx", ".js", ".scss", ".css"],
     minify: production,
     nodePaths,
     outdir,

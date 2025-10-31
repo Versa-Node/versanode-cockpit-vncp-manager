@@ -1,5 +1,7 @@
 @use "ct-card.scss";
 @use "page.scss";
+@use "@patternfly/patternfly/sass-utilities" as pf;
+
 @import "global-variables";
 // For pf-v6-line-clamp
 @import "@patternfly/patternfly/sass-utilities/mixins.scss";
@@ -35,7 +37,7 @@
 }
 
 .container-block small {
-    @include pf-v6-line-clamp("1");
+    @include pf-line-clamp("1");
     color: var(--pf-v6-global--Color--200);
 }
 
@@ -123,13 +125,13 @@
     --pf-v6-c-table-tr--responsive--PaddingLeft: 0;
 }
 
-@media (max-width: $pf-v6-global--breakpoint--md - 1) {
+@media (max-width: $pf--global--breakpoint--md - 1) {
     .show-only-when-wide {
         display: none;
     }
 }
 
-@media (min-width: $pf-v6-global--breakpoint--md) {
+@media (min-width: $pf--global--breakpoint--md) {
     .show-only-when-narrow {
         display: none;
     }
@@ -142,7 +144,7 @@
 }
 
 // Override table padding on mobile
-@media (max-width: $pf-v6-global--breakpoint--md) {
+@media (max-width: $pf--global--breakpoint--md) {
     .health-logs.pf-m-grid-md.pf-v6-c-table tr:where(.pf-v6-c-table__tr):not(.pf-v6-c-table__expandable-row) {
         padding: 0;
     }

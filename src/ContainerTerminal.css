@@ -1,4 +1,5 @@
 @import "xterm/css/xterm.css";
+@use "@patternfly/patternfly/sass-utilities" as pf;
 
 .terminal {
     /* 5px all around and on right +11 since the scrollbar is 11px wide */

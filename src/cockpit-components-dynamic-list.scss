@@ -1,4 +1,5 @@
 @use "global-variables" as *;
+@use "@patternfly/patternfly/sass-utilities" as pf;
 
 .dynamic-form-group {
     .pf-v6-c-empty-state {
