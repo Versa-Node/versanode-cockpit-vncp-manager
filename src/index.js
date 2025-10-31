@@ -1,10 +1,10 @@
 import "cockpit-dark-theme";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import "patternfly/patternfly-5-cockpit.scss";
+import "patternfly/patternfly-6-cockpit.scss";
 import Application from "./app.jsx";
 import "./docker.scss";
-import { enablePatternflyAlterations } from "./VncpPatternflyAlterations.js";
+//import { enablePatternflyAlterations } from "./VncpPatternflyAlterations.js";
 
 /* =========================
    Env helpers for reload
