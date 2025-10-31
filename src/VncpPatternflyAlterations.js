@@ -18,7 +18,7 @@ function dgroup(label, collapsed = true) {
     return { end(){ try { console.groupEnd(); } catch {} } };
   } catch { return { end(){} }; }
 }
-
+ 
 /* =========================
    Selectors (PF5 + PF6)
    ========================= */
