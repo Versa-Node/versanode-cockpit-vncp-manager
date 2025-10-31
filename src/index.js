@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     root.render(<Application />);
 
     const stopSwap = enableScopedPfV5toV6Swap([
-    '#pf-modal-part-5',
+    '#pf-modal-part-3',
     document.getElementById('run-image-dialog-publish-0'),
     ]);
 });
