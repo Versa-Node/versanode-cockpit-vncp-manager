@@ -10,7 +10,7 @@ import { enableSelectorSwaps } from './util.js';
 const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body' 
 // PF5 + PF6 tab-content element for the Create Container “Integration” tab
 const createContainerModalIntegrationTabBodyn =
-  'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
+  'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"] > div.pf-m-gutter pf-v5-l-grid';
 
 const createContainerModalIntegrationTabBody = 'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"] > div > div.pf-v5-c-form__field-group-body';
 //                                      ^ closing " ]                    ^ space for descendant combinator (likely)
@@ -19,7 +19,7 @@ const createContainerModalIntegrationTabBody = 'section.pf-v5-c-tab-content[id^=
 // === Swap rules ===
 const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
-  { selector: createContainerModalIntegrationTabBody, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: true },
+  { selector: createContainerModalIntegrationTabBody, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
 
   // Swap all PFv5 → PFv6 classes in the search modal body subtree
   { selector: searchImageModalBody, from: "pf-v5", to: "pf-v6", levels: 1, includeSelf: true },
