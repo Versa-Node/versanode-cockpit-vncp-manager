@@ -15,13 +15,13 @@ const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
   { selector: createContainerModalIntegrationTabBody, from: 'pf-v5', to: 'pf-v6', levels: -1, includeSelf: true },
   // Swap all PFv5 → PFv6 classes in the search modal body subtree
-  { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: 1 },
+  { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: 1, includeSelf: true  },
 ];
 
 const styleRules = [
   // Make the form stretch and wrap nicely
   {
-    selector: `${searchImageModalBody} > form`,
+    selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form`,
     style: {
       width: '100%',
       display: 'flex',
@@ -32,7 +32,7 @@ const styleRules = [
   },
   // Make each form group take half width (ish) on wide viewports
   {
-    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody} > form .pf-v6-c-form__group`,
+    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v6-c-form__group`,
     style: {
       flex: '1 1 48%',
       minWidth: '300px',
@@ -40,7 +40,7 @@ const styleRules = [
   },
   // Ensure the inputs/selects inside the scoped form span 100% width
   {
-    selector: `${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control select`,
+    selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form.pf-v5-c-form .pf-v5-c-form-control select`,
     style: {
       width: '100%',
       boxSizing: 'border-box',
@@ -48,11 +48,11 @@ const styleRules = [
   },
   // Optional: if PF flex row is inline and cramping space, make it full width & wrap
   {
-    selector: `${searchImageModalBody} > form .pf-v5-l-flex, ${searchImageModalBody} > form .pf-v6-l-flex`,
+    selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v5-l-flex, ${searchImageModalBody.replace('pf-v5', 'pf-v6')} > form .pf-v6-l-flex`,
     style: { width: '100%', flexWrap: 'wrap', gap: 'var(--pf-v6-global--spacer--md)' },
   },
   // Add margin above the result list
-  { selector: `${searchImageModalBody} > ul`, style: { marginTop: '22px' } },
+  { selector: `${searchImageModalBody.replace('pf-v5', 'pf-v6')} > ul`, style: { marginTop: '22px' } },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
