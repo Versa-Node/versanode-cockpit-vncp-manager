@@ -14,5 +14,5 @@ document.addEventListener("DOMContentLoaded", () => {
   root.render(<Application />);
 
    // Scope to your app root; modals are auto-handled via the body observer.
-  enableScopedPfV5toV6Swap([document.getElementById('app')]);
+  //enableScopedPfV5toV6Swap([document.getElementById('app')]);
 });
