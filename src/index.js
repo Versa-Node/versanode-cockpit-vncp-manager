@@ -213,18 +213,23 @@ function startProdCodeWatcher({ intervalMs = 10000, extraVersionPaths = [] } = {
 
 // Dev watcher: hook HMR and force reload on module updates
 function startDevHMRReload() {
-  if (typeof import !== "undefined" && import.meta && import.meta.hot) {
+  // Vite / ESM HMR
+  if (typeof import.meta !== "undefined" && import.meta.hot) {
     import.meta.hot.accept(() => location.reload());
     import.meta.hot.dispose(() => {});
     return () => {};
   }
+
+  // Webpack HMR
   if (typeof module !== "undefined" && module.hot) {
     module.hot.accept(() => location.reload());
     module.hot.dispose(() => {});
     return () => {};
   }
+
   return () => {};
 }
+
 
 // Public entrypoint: enable auto reload on code changes (dev + prod)
 function enableCodeChangeReload(options = {}) {
