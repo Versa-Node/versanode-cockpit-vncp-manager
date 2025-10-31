@@ -59,28 +59,76 @@ const styleRules = [
   },
 ];
 
+// ---- Route-change reloader ----
+const FULL_RELOAD_ON_ROUTE_CHANGE = false; // <- set to true for hard reloads
 
-document.addEventListener("DOMContentLoaded", () => {
+function patchHistory() {
+  const fire = () => window.dispatchEvent(new Event('routechange'));
+  const push = history.pushState;
+  const replace = history.replaceState;
+  history.pushState = function (...args) { const r = push.apply(this, args); fire(); return r; };
+  history.replaceState = function (...args) { const r = replace.apply(this, args); fire(); return r; };
+  window.addEventListener('popstate', fire);
+  window.addEventListener('hashchange', fire);
+}
+
+let root = null;
+let stopSwaps = null;
+let mountKey = 0;
+
+function mount() {
   const appEl = document.getElementById('app');
   if (!appEl) return;
 
-  const root = createRoot(appEl);
-  root.render(<Application />);
+  // (Re)create the root if needed
+  if (!root) root = createRoot(appEl);
+
+  // Use a changing key to force React to fully remount the tree (soft reload)
+  root.render(<Application key={`route-${mountKey++}`} />);
 
   // Start swaps (scoped + live via MutationObserver)
-  const stopSwaps = enableSelectorSwaps({ swapRules, styleRules });
+  stopSwaps = enableSelectorSwaps({ swapRules, styleRules });
 
-  // Stop swaps when app unmounts or page navigates
-  const observer = new MutationObserver(() => {
+  // Stop swaps when app unmounts or page navigates away entirely
+  const unmountGuard = new MutationObserver(() => {
     if (!document.body.contains(appEl)) {
-      stopSwaps();
-      observer.disconnect();
+      stopSwaps?.();
+      unmountGuard.disconnect();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+  unmountGuard.observe(document.body, { childList: true, subtree: true });
 
   window.addEventListener('beforeunload', () => {
-    stopSwaps();
-    observer.disconnect();
+    stopSwaps?.();
+    unmountGuard.disconnect();
+  }, { once: true });
+}
+
+function unmount() {
+  try { stopSwaps?.(); } catch {}
+  if (root) { root.unmount(); root = null; }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  patchHistory();
+  mount();
+
+  window.addEventListener('routechange', () => {
+    if (FULL_RELOAD_ON_ROUTE_CHANGE) {
+      // Hard reload the whole document on any SPA route change
+      // (guard against loops by only reloading when path actually changed)
+      const prev = sessionStorage.getItem('__last_path__');
+      const next = `${location.pathname}${location.search}${location.hash}`;
+      if (prev !== next) {
+        sessionStorage.setItem('__last_path__', next);
+        location.reload();
+      }
+      return;
+    }
+
+    // Soft reload: cleanly remount React and restart swaps/styles
+    unmount();
+    // Delay a tick so any new DOM from the router has landed
+    queueMicrotask(mount);
   });
 });
