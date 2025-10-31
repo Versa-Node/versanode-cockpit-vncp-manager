@@ -6,7 +6,11 @@ import Application from "./app.jsx";
 import "./docker.scss";
 import { enableSelectorSwaps } from "./util.js";
 
-// PF5 + PF6 modal bodies for the search modal
+/* =========================
+   Selectors (PF5 + PF6)
+   ========================= */
+
+// PF5 search modal body (we'll also derive the PF6 selector)
 const searchImageModalBody =
   'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
 
@@ -26,16 +30,22 @@ const integrationGridsSelector = [
   `${integrationSection.replace("pf-v5", "pf-v6")} .pf-v6-l-grid`,
 ].join(", ");
 
-// === Swap rules ===
+/* =========================
+   Swap rules
+   ========================= */
+
 const swapRules = [
-  // Swap all PFv5 → PFv6 classes in each field-group body subtree (keep parent as-is)
+  // Swap all PFv5 → PFv6 classes in each field-group body subtree (keep body node as-is)
   { selector: integrationBodiesSelector, from: "pf-v5", to: "pf-v6", levels: -1, includeSelf: false },
 
   // Swap PFv5 → PFv6 inside the search modal body (one level deep)
   { selector: searchImageModalBody, from: "pf-v5", to: "pf-v6", levels: 1, includeSelf: true },
 ];
 
-// === Styles ===
+/* =========================
+   Styles
+   ========================= */
+
 const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
 
 const styleRules = [
@@ -96,7 +106,10 @@ const styleRules = [
   },
 ];
 
-// ---- Route-change reloader (route changes only; not code HMR) ----
+/* =========================
+   Route-change reloader (SPA)
+   ========================= */
+
 const FULL_RELOAD_ON_ROUTE_CHANGE = false; // true => hard reload
 
 function patchHistory() {
@@ -108,6 +121,121 @@ function patchHistory() {
   window.addEventListener("popstate", fire);
   window.addEventListener("hashchange", fire);
 }
+
+/* =========================
+   Auto page reload on code changes (Dev + Prod)
+   ========================= */
+
+// --- Helpers for hashing responses ---
+function toHex(buf) {
+  const v = new Uint8Array(buf);
+  let s = "";
+  for (let i = 0; i < v.length; i++) s += v[i].toString(16).padStart(2, "0");
+  return s;
+}
+
+async function hashResponse(res) {
+  const buf = await res.arrayBuffer();
+  const digest = await crypto.subtle.digest("SHA-256", buf);
+  return toHex(digest);
+}
+
+// Collect same-origin JS/CSS assets currently loaded
+function collectSameOriginAssets() {
+  const urls = new Set();
+
+  // scripts
+  document.querySelectorAll("script[src]").forEach((s) => {
+    try {
+      const u = new URL(s.src, location.href);
+      if (u.origin === location.origin) urls.add(u.pathname + u.search);
+    } catch {}
+  });
+
+  // stylesheets
+  document.querySelectorAll('link[rel~="stylesheet"][href]').forEach((l) => {
+    try {
+      const u = new URL(l.href, location.href);
+      if (u.origin === location.origin) urls.add(u.pathname + u.search);
+    } catch {}
+  });
+
+  return Array.from(urls);
+}
+
+// Prod watcher: poll asset bytes (no-store), hash, and reload if any change
+function startProdCodeWatcher({ intervalMs = 10000, extraVersionPaths = [] } = {}) {
+  const assets = collectSameOriginAssets().concat(extraVersionPaths || []);
+  if (!assets.length) return () => {};
+
+  let live = true;
+  let baseline = new Map();
+  let ticking = false;
+
+  const checkOnce = async () => {
+    if (!live || ticking) return;
+    ticking = true;
+
+    try {
+      if (baseline.size === 0) {
+        const sigs = await Promise.all(
+          assets.map(async (path) => {
+            const res = await fetch(path, { cache: "no-store" });
+            if (!res.ok) return [path, ""];
+            return [path, await hashResponse(res)];
+          })
+        );
+        sigs.forEach(([k, v]) => baseline.set(k, v));
+        return;
+      }
+
+      for (const path of assets) {
+        const res = await fetch(path, { cache: "no-store" });
+        if (!res.ok) continue;
+        const now = await hashResponse(res);
+        const prev = baseline.get(path);
+        if (prev && prev !== now) {
+          location.reload();
+          return;
+        }
+      }
+    } catch {
+      // ignore transient errors
+    } finally {
+      ticking = false;
+    }
+  };
+
+  checkOnce();
+  const t = setInterval(checkOnce, intervalMs);
+  return () => { live = false; clearInterval(t); };
+}
+
+// Dev watcher: hook HMR and force reload on module updates
+function startDevHMRReload() {
+  if (typeof import !== "undefined" && import.meta && import.meta.hot) {
+    import.meta.hot.accept(() => location.reload());
+    import.meta.hot.dispose(() => {});
+    return () => {};
+  }
+  if (typeof module !== "undefined" && module.hot) {
+    module.hot.accept(() => location.reload());
+    module.hot.dispose(() => {});
+    return () => {};
+  }
+  return () => {};
+}
+
+// Public entrypoint: enable auto reload on code changes (dev + prod)
+function enableCodeChangeReload(options = {}) {
+  const stopDev = startDevHMRReload();
+  const stopProd = startProdCodeWatcher(options);
+  return () => { stopDev(); stopProd(); };
+}
+
+/* =========================
+   Mount / Unmount
+   ========================= */
 
 let root = null;
 let stopSwaps = null;
@@ -134,10 +262,14 @@ function mount() {
   });
   unmountGuard.observe(document.body, { childList: true, subtree: true });
 
-  window.addEventListener("beforeunload", () => {
-    stopSwaps?.();
-    unmountGuard.disconnect();
-  }, { once: true });
+  window.addEventListener(
+    "beforeunload",
+    () => {
+      stopSwaps?.();
+      unmountGuard.disconnect();
+    },
+    { once: true }
+  );
 }
 
 function unmount() {
@@ -145,9 +277,24 @@ function unmount() {
   if (root) { root.unmount(); root = null; }
 }
 
+/* =========================
+   Boot
+   ========================= */
+
 document.addEventListener("DOMContentLoaded", () => {
   patchHistory();
   mount();
+
+  // Auto page reload when source files change (not DOM attribute changes)
+  const stopCodeReload = enableCodeChangeReload({
+    intervalMs: 10000,
+    // If you publish a tiny build-id file, include it here for ultra-cheap checks:
+    // extraVersionPaths: ["/app-version.txt"],
+  });
+
+  window.addEventListener("beforeunload", () => {
+    stopCodeReload();
+  });
 
   window.addEventListener("routechange", () => {
     if (FULL_RELOAD_ON_ROUTE_CHANGE) {
@@ -164,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     queueMicrotask(mount);
   });
 
-  // // Optional: Dev HMR hook
+  // // Optional: Dev HMR hook (already covered by enableCodeChangeReload, but kept for clarity)
   // if (import.meta?.hot) {
   //   import.meta.hot.accept(() => { unmount(); mount(); });
   //   import.meta.hot.dispose(() => { unmount(); });
