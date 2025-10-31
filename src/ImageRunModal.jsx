@@ -1334,6 +1334,7 @@ if (proxiesValidation.some(entry => entry && (entry.slug || entry.port || entry.
     return (
       <Modal
         isOpen
+        className="vncp-create-container"
         position="top"
         variant="medium"
         onClose={Dialogs.close}

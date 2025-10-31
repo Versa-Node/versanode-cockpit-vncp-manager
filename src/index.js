@@ -7,21 +7,18 @@ import './docker.scss';
 import { enableSelectorSwaps } from './util.js';
 
 // UI replacements here
+const searchImageModal = 'div[id^="pf-modal-part-"].vncp-search-image > div.pf-v5-c-modal-box__body'
+const createContainerModal = 'div[id^="pf-modal-part-"].vncp-create-container > div.pf-v5-c-modal-box__body'
 const swapRules = [
   // Swap class
-  { selector: '#pf-tab-section-2-create-image-dialog-tab-integration', from: 'pf-v5', to: 'pf-v6', levels: -1},
-  
-  { selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
-  {
-  selector: 'div[id^="pf-modal-part-"].vncp-search > div.pf-v5-c-modal-box__body',
-  from: 'pf-v5',
-  to: 'pf-v6',
-  levels: 1, // recurse through 1 child
-    }
+  //{ selector: '#run-image-dialog-publish-0', from: 'pf-v5', to: 'pf-v6', levels: -1 },
+  { selector: createContainerModal, from: 'pf-v5', to: 'pf-v6', levels: -1},
+  { selector: searchImageModal, from: 'pf-v5', to: 'pf-v6', levels: 1}
 ];
 
 const styleRules = [
-   { selector: 'div[id^="pf-modal-part-"].vncp-search > div.pf-v6-c-modal-box__body > ul', style: { marginTop: '22px' } },
+   { selector: searchImageModal + ' > form', style: { marginTop: '22px' } },
+    { selector: searchImageModal + ' > ul', style: { marginTop: '22px' } },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {

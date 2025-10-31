@@ -763,7 +763,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
     <div id ="search-image-dialog-parent">
     <Modal
       isOpen
-      className="vncp-search"
+      className="vncp-search-image"
       position="top"
       variant="large"
       onClose={handleClose}
