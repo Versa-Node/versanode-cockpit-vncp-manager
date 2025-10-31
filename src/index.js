@@ -13,24 +13,33 @@ import { enableSelectorSwaps } from "./util.js";
 // PF5 search modal body (we'll also derive the PF6 selector)
 const searchImageModalBody =
   'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body';
-// Anchor at the tab section (both v5 and v6), then sweep everything under it
-const integrationSection =
+
+// Integration tab <section> (PF5 class in your DOM sample) + PF6 variant
+const integrationSectionPF5 =
   'section.pf-v5-c-tab-content[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"]';
+const integrationSectionPF6 = integrationSectionPF5.replace("pf-v5", "pf-v6");
 
-const integrationSectionV6 =
-  integrationSection.replace("pf-v5", "pf-v6");
+// PF grid containers inside Integration tab (PF5 + PF6)
+const integrationGridsSelector =
+  `${integrationSectionPF5} .pf-v5-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
 
-// Single rule that starts at the section, includes self, and recurses fully
+/* =========================
+   Swap rules
+   ========================= */
+
 const swapRules = [
+  // Swap the entire Integration tab section subtree (flip the section itself too)
   {
-    selector: `${integrationSection}, ${integrationSectionV6}`,
+    selector: `${integrationSectionPF5}, ${integrationSectionPF6}`,
     from: "pf-v5",
     to: "pf-v6",
     levels: -1,
     includeSelf: true,
   },
+
+  // Swap PFv5 → PFv6 inside the search modal body (one level deep)
   {
-    selector: 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body',
+    selector: searchImageModalBody,
     from: "pf-v5",
     to: "pf-v6",
     levels: 1,
@@ -38,23 +47,13 @@ const swapRules = [
   },
 ];
 
-// (Optional) styles that target both grid class variants inside the section
-const integrationGridsSelector =
-  `${integrationSection} .pf-v5-l-grid, ${integrationSectionV6} .pf-v6-l-grid`;
+/* =========================
+   Styles
+   ========================= */
 
 const searchBodyPF6 = searchImageModalBody.replace("pf-v5", "pf-v6");
 
 const styleRules = [
-  {
-    selector: integrationGridsSelector,
-    style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-      // If PF6 var might not exist yet, add a fallback:
-      gap: "var(--pf-v6-global--spacer--md, var(--pf-v5-global--spacer--md, 16px))",
-      alignItems: "end",
-    },
-  },
   // Search form container (let inner row manage widths)
   {
     selector: `${searchBodyPF6} > form`,
@@ -100,14 +99,17 @@ const styleRules = [
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(12, minmax(0, 1fr))",
-      gap: "var(--pf-v6-global--spacer--md)",
+      gap: "var(--pf-v6-global--spacer--md, var(--pf-v5-global--spacer--md, 16px))",
       alignItems: "end",
     },
   },
 
-  // Ensure field groups can shrink inside their cells
+  // Ensure field groups can shrink inside their cells (PF5 + PF6 bodies)
   {
-    selector: `${integrationBodiesSelector} .pf-v5-c-form__group, ${integrationBodiesSelector.replace(/pf-v5/g, "pf-v6")} .pf-v6-c-form__group`,
+    selector: `
+      ${integrationSectionPF5} .pf-v5-c-form__field-group-body .pf-v5-c-form__group,
+      ${integrationSectionPF6} .pf-v6-c-form__field-group-body .pf-v6-c-form__group
+    `,
     style: { minWidth: 0 },
   },
 ];
@@ -132,7 +134,7 @@ function patchHistory() {
    Auto page reload on code changes (Prod; optional Webpack HMR)
    ========================= */
 
-// --- Helpers for hashing responses ---
+// Helpers for hashing responses
 function toHex(buf) {
   const v = new Uint8Array(buf);
   let s = "";
@@ -229,8 +231,8 @@ function startDevHMRReload() {
 
 // Public entrypoint: enable auto reload on code changes (dev + prod)
 function enableCodeChangeReload(options = {}) {
-  const stopDev = startDevHMRReload();       // Webpack HMR (if present)
-  const stopProd = startProdCodeWatcher(options); // Hash-based watcher
+  const stopDev = startDevHMRReload();             // Webpack HMR (if present)
+  const stopProd = startProdCodeWatcher(options);  // Hash-based watcher
   return () => { stopDev(); stopProd(); };
 }
 
@@ -289,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Auto page reload when source files change (not DOM attribute changes)
   const stopCodeReload = enableCodeChangeReload({
     intervalMs: 10000,
-    // Optional: if you publish a tiny build-id file, include it here:
+    // Optional: publish a tiny build-id file and include it here:
     // extraVersionPaths: ["/app-version.txt"],
   });
 
