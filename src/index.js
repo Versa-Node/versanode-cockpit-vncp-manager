@@ -25,7 +25,7 @@ const integrationGridRoot =
   `${integrationSectionPF6} .pf-m-gutter.pf-v6-l-grid`;
 
 // For layout styling we can still address both PF5/PF6 grids
-const integrationGridsSelector =
+export const integrationGridsSelector =
   `${integrationSectionPF5} .pf-v5-l-grid, ${integrationSectionPF6} .pf-v6-l-grid`;
 
 /* =========================
