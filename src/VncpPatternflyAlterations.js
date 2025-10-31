@@ -96,34 +96,27 @@ function lowerChildrenOneLevel(node) {
   return kids.length;
 }
 
-// Force grid → PF6, lower children, then swap descendants pf-v5→pf-v6, with debug
 function lowerAndSweepUnderGrid(gridEl, rule) {
   const g = dgroup("PF grid anchor transform");
   try {
     if (!gridEl) return;
 
-    // 1) Bump the anchor grid class to PF6 (only if it's a PF5 grid)
-    const gridSwap = rewriteClassList(
-      gridEl,
-      "pf-v5",
-      "pf-v6",
-      (cls) => cls.startsWith("pf-v5-l-grid")
-    );
+    // ✅ Do NOT rewrite the anchor grid class; leave pf-v5-l-grid / pf-m-gutter as-is
+    dlog("Anchor grid left untouched:", gridEl, gridEl.className);
 
-    // 2) Lower direct children one level
+    // Lower direct children one level to stabilize PF6 layout descendants
     const wrapped = lowerChildrenOneLevel(gridEl);
 
-    // 3) Convert everything under the grid (exclude the grid itself)
+    // Convert everything under the grid (exclude the grid itself)
     const deep = sweep(gridEl, rule.from, rule.to, rule.allow, /*includeSelf*/ false);
 
-    dlog("Grid anchor:", gridEl);
-    dlog("Class swap (anchor):", gridSwap);
     dlog("Children wrapped:", wrapped);
     dlog("Descendant sweep:", deep);
   } finally {
     g.end();
   }
 }
+
 
 /* =========================
    Swap rules
@@ -134,9 +127,8 @@ const convertBelowGrid = {
   selector: anyGridWithGutterGlobal,
   from: "pf-v5",
   to: "pf-v6",
-  includeSelf: false, // never touch the grid node in the sweep
+  includeSelf: false,            // ✅ never touch the anchor itself
   _apply(anchor) {
-    // Extra sanity: confirm the anchor truly has both a grid class and pf-m-gutter
     const hasGutter = anchor.classList.contains("pf-m-gutter");
     const isPF5Grid = anchor.classList.contains("pf-v5-l-grid");
     const isPF6Grid = anchor.classList.contains("pf-v6-l-grid");
@@ -147,6 +139,7 @@ const convertBelowGrid = {
     lowerAndSweepUnderGrid(anchor, this);
   }
 };
+
 
 // Shallow flip for PF5 modal body (compat)
 const shallowModalFlip = {
@@ -275,4 +268,4 @@ export const __vncpHelpers = {
 /* =========================
    End of File
    ========================= */
-   
+
