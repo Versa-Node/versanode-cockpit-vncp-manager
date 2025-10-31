@@ -34,28 +34,39 @@ function rewriteClassList(el, from, to, allowFn = null) {
 
 /**
  * Recursively apply class swaps to an element and its descendants
- * @param {Element} root - the root element
- * @param {string} from - prefix to replace
- * @param {string} to - replacement prefix
- * @param {function} allowFn - optional allow filter
- * @param {number} levels - recursion depth (-1 = all)
- * @param {number} current - internal counter
- * @param {boolean} includeSelf - whether to swap on the root itself
+ * @param {Element} root
+ * @param {string} from
+ * @param {string} to
+ * @param {function} allowFn
+ * @param {number} levels  (-1 = unlimited)
+ * @param {number} current
+ * @param {boolean} includeSelf
  */
 function sweep(root, from, to, allowFn, levels = -1, current = 0, includeSelf = true) {
   if (!root) return;
 
-  // If includeSelf is false, skip rewriting the root (current === 0),
-  // but still rewrite all descendants.
-  if (includeSelf || current > 0) {
+  const isRoot = current === 0;
+
+  // Depth baseline fix: if we skip the root, don't "charge" a level for it.
+  const effectiveCurrent = (!includeSelf && isRoot) ? 0 : current;
+
+  // Stop recursion if levels == 0 or max depth reached (based on effective depth)
+  if (levels === 0 || (levels > 0 && effectiveCurrent > levels)) return;
+
+  // Only rewrite the root if includeSelf, always rewrite descendants.
+  if (includeSelf || !isRoot) {
     rewriteClassList(root, from, to, allowFn);
   }
 
-  // Stop recursion if levels == 0 or max depth reached
-  if (levels === 0 || (levels > 0 && current >= levels)) return;
+  // If we've reached the depth limit after this node, don't descend further.
+  if (levels > 0 && effectiveCurrent === levels) return;
 
-  for (const child of root.children) {
-    sweep(child, from, to, allowFn, levels, current + 1, includeSelf);
+  // Use a snapshot to avoid live-collection quirks while mutating classes.
+  const children = root.children ? Array.from(root.children) : [];
+  for (const child of children) {
+    // When skipping the root, keep the child at depth 0; otherwise increment.
+    const nextDepth = (!includeSelf && isRoot) ? 0 : (current + 1);
+    sweep(child, from, to, allowFn, levels, nextDepth, includeSelf);
   }
 }
 
