@@ -17,6 +17,7 @@ export const WithDockerInfo = ({ value, children }) => {
         </DockerInfoContext.Provider>
     );
 };
+
 function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return;
   const adds = [], removes = [];
@@ -38,46 +39,25 @@ function rewriteClassList(el, from, to, allowFn = null) {
  * @param {string} from
  * @param {string} to
  * @param {function} allowFn
- * @param {number} levels  (-1 = unlimited)
+ * @param {number} levels  -1 = all
  * @param {number} current
  * @param {boolean} includeSelf
  */
 function sweep(root, from, to, allowFn, levels = -1, current = 0, includeSelf = true) {
   if (!root) return;
 
-  const isRoot = current === 0;
+  if (includeSelf) rewriteClassList(root, from, to, allowFn);
 
-  // Depth baseline fix: if we skip the root, don't "charge" a level for it.
-  const effectiveCurrent = (!includeSelf && isRoot) ? 0 : current;
+  // stop if depth reached
+  if (levels === 0 || (levels > 0 && current >= levels)) return;
 
-  // Stop recursion if levels == 0 or max depth reached (based on effective depth)
-  if (levels === 0 || (levels > 0 && effectiveCurrent > levels)) return;
-
-  // Only rewrite the root if includeSelf, always rewrite descendants.
-  if (includeSelf || !isRoot) {
-    rewriteClassList(root, from, to, allowFn);
-  }
-
-  // If we've reached the depth limit after this node, don't descend further.
-  if (levels > 0 && effectiveCurrent === levels) return;
-
-  // Use a snapshot to avoid live-collection quirks while mutating classes.
-  const children = root.children ? Array.from(root.children) : [];
-  for (const child of children) {
-    // When skipping the root, keep the child at depth 0; otherwise increment.
-    const nextDepth = (!includeSelf && isRoot) ? 0 : (current + 1);
-    sweep(child, from, to, allowFn, levels, nextDepth, includeSelf);
+  for (const child of root.children) {
+    // always include children (includeSelf only applies to the starting node)
+    rewriteClassList(child, from, to, allowFn);
+    sweep(child, from, to, allowFn, levels, current + 1, true);
   }
 }
 
-
-/**
- * swapRules: [
- *   { selector, from, to, levels=-1, allow /* optional: (cls)=>boolean *\/, includeSelf /* default true *\/ }
- * ]
- * styleRules: [{ selector, style: { ...cssProps } }]
- * isActive: optional ()=>boolean guard
- */
 export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive = () => true } = {}) {
   const applyStyles = () => {
     styleRules.forEach(({ selector, style }) => {
@@ -91,18 +71,17 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
     sweep(anchor, from, to, allow, levels, 0, includeSelf);
   };
 
-  // Run swaps for all matches in a root subtree and, optionally, an anchor
   const applySwapsNow = (root = document, anchorPerRule = null) => {
     if (!isActive()) return;
 
     swapRules.forEach((rule) => {
       const { selector } = rule;
 
-      // 1) If an explicit anchor for this rule is passed, sweep it first
+      // sweep provided anchor first
       const anchor = anchorPerRule?.get?.(rule);
       if (anchor) sweepSelection(anchor, rule);
 
-      // 2) Also sweep any matches *inside* root
+      // also sweep matches inside root
       const nodes = (root === document)
         ? document.querySelectorAll(selector)
         : (root.querySelectorAll?.(selector) || []);
@@ -110,7 +89,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
     });
   };
 
-  // Initial pass
+  // initial pass
   applySwapsNow();
   applyStyles();
 
@@ -122,7 +101,7 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
         m.addedNodes.forEach(n => {
           if (n.nodeType !== 1) return;
 
-          // For each rule, try to find the nearest ancestor that matches.
+          // for each rule, find nearest ancestor *or the section itself*
           const anchorPerRule = new Map();
           swapRules.forEach(rule => {
             const { selector } = rule;
@@ -130,16 +109,18 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
             if (anc) anchorPerRule.set(rule, anc);
           });
 
-          // Apply swaps both from anchors (ancestors) and within the new subtree
+          // sweep from anchors and the whole new subtree
           applySwapsNow(n, anchorPerRule);
           applyStyles();
         });
       } else if (m.type === 'attributes' && m.attributeName === 'class') {
-        // If the mutated element matches any selector, sweep from that element
+        // if a descendant in the integration section changes class,
+        // resweep from the section body anchor to catch it
         swapRules.forEach(rule => {
-          if (m.target.matches?.(rule.selector)) {
-            sweepSelection(m.target, rule);
-          }
+          const { selector } = rule;
+          // resweep if either the target *or its ancestor* matches the rule selector
+          const anc = m.target.closest?.(selector);
+          if (anc) sweepSelection(anc, rule);
         });
       }
     }
@@ -154,7 +135,6 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive 
 
   return () => obs.disconnect();
 }
-
 
 /**
  * Safely quote a string for /bin/sh so it can be embedded in a single command line.

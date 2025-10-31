@@ -123,7 +123,7 @@ function patchHistory() {
 }
 
 /* =========================
-   Auto page reload on code changes (Dev + Prod)
+   Auto page reload on code changes (Prod; optional Webpack HMR)
    ========================= */
 
 // --- Helpers for hashing responses ---
@@ -211,30 +211,20 @@ function startProdCodeWatcher({ intervalMs = 10000, extraVersionPaths = [] } = {
   return () => { live = false; clearInterval(t); };
 }
 
-// Dev watcher: hook HMR and force reload on module updates
+// Dev watcher for Webpack HMR only (no import.meta to avoid IIFE warnings)
 function startDevHMRReload() {
-  // Vite / ESM HMR
-  if (typeof import.meta !== "undefined" && import.meta.hot) {
-    import.meta.hot.accept(() => location.reload());
-    import.meta.hot.dispose(() => {});
-    return () => {};
-  }
-
-  // Webpack HMR
-  if (typeof module !== "undefined" && module.hot) {
+  if (typeof module !== "undefined" && module && module.hot) {
     module.hot.accept(() => location.reload());
     module.hot.dispose(() => {});
     return () => {};
   }
-
   return () => {};
 }
 
-
 // Public entrypoint: enable auto reload on code changes (dev + prod)
 function enableCodeChangeReload(options = {}) {
-  const stopDev = startDevHMRReload();
-  const stopProd = startProdCodeWatcher(options);
+  const stopDev = startDevHMRReload();       // Webpack HMR (if present)
+  const stopProd = startProdCodeWatcher(options); // Hash-based watcher
   return () => { stopDev(); stopProd(); };
 }
 
@@ -293,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Auto page reload when source files change (not DOM attribute changes)
   const stopCodeReload = enableCodeChangeReload({
     intervalMs: 10000,
-    // If you publish a tiny build-id file, include it here for ultra-cheap checks:
+    // Optional: if you publish a tiny build-id file, include it here:
     // extraVersionPaths: ["/app-version.txt"],
   });
 
@@ -315,10 +305,4 @@ document.addEventListener("DOMContentLoaded", () => {
     unmount();
     queueMicrotask(mount);
   });
-
-  // // Optional: Dev HMR hook (already covered by enableCodeChangeReload, but kept for clarity)
-  // if (import.meta?.hot) {
-  //   import.meta.hot.accept(() => { unmount(); mount(); });
-  //   import.meta.hot.dispose(() => { unmount(); });
-  // }
 });
