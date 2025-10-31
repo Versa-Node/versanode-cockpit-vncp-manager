@@ -7,24 +7,21 @@ import './docker.scss';
 import { enableSelectorSwaps } from './util.js';
 
 // PF5 + PF6 modal bodies for the search modal
-const searchImageModalBody1 = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body' 
-const searchImageModalBody2 = searchImageModalBody1 + ', ' + searchImageModalBody1.replace('pf-v5', 'pf-v6');
-
+const searchImageModalBody = 'div[id^="pf-modal-part-"].vncp-image-search > div.pf-v5-c-modal-box__body' 
 // PF5 + PF6 tab-content element for the Create Container “Integration” tab
-const createContainerModalIntegrationTabBody1 = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content > div.pf-v5-c-form__field-group-body > div[id^="run-image-dialog-publish-"]' 
-const createContainerModalIntegrationTabBody2 = createContainerModalIntegrationTabBody1 + ', ' + createContainerModalIntegrationTabBody1.replace('pf-v5', 'pf-v6');
+const createContainerModalIntegrationTabBody = 'section[id^="pf-tab-section-"][id$="-create-image-dialog-tab-integration"].pf-v5-c-tab-content > div.pf-v5-c-form__field-group-body > div[id^="run-image-dialog-publish-"]' 
 
 const swapRules = [
   // Swap all PFv5 → PFv6 classes in the Integration tab subtree
-  { selector: createContainerModalIntegrationTabBody2, from: 'pf-v5', to: 'pf-v6', levels: -1, includeSelf: true },
+  { selector: createContainerModalIntegrationTabBody, from: 'pf-v5', to: 'pf-v6', levels: -1, includeSelf: true },
   // Swap all PFv5 → PFv6 classes in the search modal body subtree
-  { selector: searchImageModalBody2, from: 'pf-v5', to: 'pf-v6', levels: 1 },
+  { selector: searchImageModalBody, from: 'pf-v5', to: 'pf-v6', levels: 1 },
 ];
 
 const styleRules = [
   // Make the form stretch and wrap nicely
   {
-    selector: `${searchImageModalBody2} > form`,
+    selector: `${searchImageModalBody} > form`,
     style: {
       width: '100%',
       display: 'flex',
@@ -35,7 +32,7 @@ const styleRules = [
   },
   // Make each form group take half width (ish) on wide viewports
   {
-    selector: `${searchImageModalBody2} > form .pf-v5-c-form__group, ${searchImageModalBody2} > form .pf-v6-c-form__group`,
+    selector: `${searchImageModalBody} > form .pf-v5-c-form__group, ${searchImageModalBody} > form .pf-v6-c-form__group`,
     style: {
       flex: '1 1 48%',
       minWidth: '300px',
@@ -43,7 +40,7 @@ const styleRules = [
   },
   // Ensure the inputs/selects inside the scoped form span 100% width
   {
-    selector: `${searchImageModalBody2} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody2} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody2} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody2} > form.pf-v5-c-form .pf-v5-c-form-control select`,
+    selector: `${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v6-c-form .pf-v5-c-form-control select, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control input, ${searchImageModalBody} > form.pf-v5-c-form .pf-v5-c-form-control select`,
     style: {
       width: '100%',
       boxSizing: 'border-box',
@@ -51,11 +48,11 @@ const styleRules = [
   },
   // Optional: if PF flex row is inline and cramping space, make it full width & wrap
   {
-    selector: `${searchImageModalBody2} > form .pf-v5-l-flex, ${searchImageModalBody2} > form .pf-v6-l-flex`,
+    selector: `${searchImageModalBody} > form .pf-v5-l-flex, ${searchImageModalBody} > form .pf-v6-l-flex`,
     style: { width: '100%', flexWrap: 'wrap', gap: 'var(--pf-v6-global--spacer--md)' },
   },
   // Add margin above the result list
-  { selector: `${searchImageModalBody2} > ul`, style: { marginTop: '22px' } },
+  { selector: `${searchImageModalBody} > ul`, style: { marginTop: '22px' } },
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
