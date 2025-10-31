@@ -17,59 +17,86 @@ export const WithDockerInfo = ({ value, children }) => {
         </DockerInfoContext.Provider>
     );
 };
-
-function swapClassTokens(el, fromPrefix, toPrefix) {
+// util.js
+function rewriteClassList(el, from, to, allowFn = null) {
   if (!el || !el.classList) return;
-  const add = [];
-  const remove = [];
+  const adds = [], removes = [];
   el.classList.forEach(cls => {
-    if (cls.startsWith(fromPrefix)) {
-      remove.push(cls);
-      add.push(toPrefix + cls.slice(fromPrefix.length));
-    }
+    if (!cls.startsWith(from)) return;
+    if (allowFn && !allowFn(cls)) return;
+    removes.push(cls);
+    adds.push(to + cls.slice(from.length));
   });
-  if (remove.length) {
-    remove.forEach(c => el.classList.remove(c));
-    add.forEach(c => el.classList.add(c));
+  if (removes.length) {
+    removes.forEach(c => el.classList.remove(c));
+    adds.forEach(c => el.classList.add(c));
   }
 }
 
-function sweepTree(root, fromPrefix, toPrefix) {
+function sweep(root, from, to, allowFn) {
   if (!root) return;
-  swapClassTokens(root, fromPrefix, toPrefix);
-  root.querySelectorAll?.('[class]').forEach(node => swapClassTokens(node, fromPrefix, toPrefix));
-}
-
-function applyStyleRule({ selector, style }) {
-  if (!selector || !style) return;
-  document.querySelectorAll(selector).forEach(el => {
-    Object.assign(el.style, style);
+  rewriteClassList(root, from, to, allowFn);
+  root.querySelectorAll?.('[class*="' + from + '"]').forEach(el => {
+    rewriteClassList(el, from, to, allowFn);
   });
 }
 
-function applySwapRule({ selector, from, to }) {
-  if (!selector || !from || !to) return;
-  document.querySelectorAll(selector).forEach(root => sweepTree(root, from, to));
-}
-
 /**
- * Enable targeted PF class swaps and styles using rules.
- * @param {Object} config
- * @param {{selector:string, from:string, to:string}[]} config.swapRules
- * @param {{selector:string, style:Object}[]} config.styleRules
- * @returns {() => void} stop function
+ * swapRules: [
+ *   { selector, from, to, deep=true, allow /* optional: (cls)=>boolean *\/ }
+ * ]
+ * styleRules: [{ selector, style: { ...cssProps } }]
+ * isActive: optional ()=>boolean guard
  */
-export function enableSelectorSwaps({ swapRules = [], styleRules = [] } = {}) {
-  const runAll = () => {
-    swapRules.forEach(applySwapRule);
-    styleRules.forEach(applyStyleRule);
+export function enableSelectorSwaps({ swapRules = [], styleRules = [], isActive = () => true } = {}) {
+  const applyStyles = () => {
+    styleRules.forEach(({ selector, style }) => {
+      document.querySelectorAll(selector).forEach(el => {
+        Object.assign(el.style, style || {});
+      });
+    });
   };
 
-  // Initial run
-  runAll();
+  const applySwapsNow = (root = document) => {
+    if (!isActive()) return;
+    // For each rule, find matches under the provided root and apply per deep flag
+    swapRules.forEach(rule => {
+      const { selector, from, to, deep = true, allow } = rule;
+      const nodes = (root === document)
+        ? document.querySelectorAll(selector)
+        : (root.matches?.(selector) ? [root] : root.querySelectorAll?.(selector) || []);
+      nodes.forEach(node => {
+        if (deep) sweep(node, from, to, allow);
+        else rewriteClassList(node, from, to, allow); // self-only
+      });
+    });
+  };
 
-  // Re-run on DOM changes (for modals, tab switches, etc.)
-  const obs = new MutationObserver(() => runAll());
+  // Initial pass
+  applySwapsNow();
+  applyStyles();
+
+  // Observe mutations so late/portaled content is handled
+  const obs = new MutationObserver(muts => {
+    if (!isActive()) return;
+    for (const m of muts) {
+      if (m.type === 'childList') {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType !== 1) return;
+          applySwapsNow(n);
+          applyStyles();
+        });
+      } else if (m.type === 'attributes' && m.attributeName === 'class') {
+        // If a target itself is a match for a self-only rule or any rule, re-apply carefully
+        swapRules.forEach(({ selector, from, to, deep = true, allow }) => {
+          if (m.target.matches?.(selector)) {
+            if (deep) sweep(m.target, from, to, allow);
+            else rewriteClassList(m.target, from, to, allow);
+          }
+        });
+      }
+    }
+  });
   obs.observe(document.body, {
     childList: true,
     subtree: true,
@@ -77,15 +104,8 @@ export function enableSelectorSwaps({ swapRules = [], styleRules = [] } = {}) {
     attributeFilter: ['class'],
   });
 
-  // Also re-run after load (in case late content appears)
-  window.addEventListener('load', runAll);
-
-  return () => {
-    obs.disconnect();
-    window.removeEventListener('load', runAll);
-  };
+  return () => obs.disconnect();
 }
-
 
 /**
  * Safely quote a string for /bin/sh so it can be embedded in a single command line.
