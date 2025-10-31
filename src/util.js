@@ -17,77 +17,113 @@ export const WithDockerInfo = ({ value, children }) => {
         </DockerInfoContext.Provider>
     );
 };
+
 // util.js
-export function enableScopedPfV5toV6Swap(
-  roots,                       // array of selectors or Elements
-  { denylist = new Set(['pf-v5-svg']), live = true } = {}
-) {
-  // Normalize input -> Element[]
-  const toArray = (x) => (Array.isArray(x) ? x : [x]);
-  const resolve = (t) =>
-    typeof t === 'string' ? document.querySelectorAll(t) : [t];
-  const rootEls = [...new Set(
-    toArray(roots).flatMap((r) => Array.from(resolve(r) || []))
-  )].filter((el) => el && el.nodeType === 1);
+const ALLOWED_AFTER_PREFIX = ['l-flex', 'l-grid', 'c-form'];
 
-  if (!rootEls.length) {
-    return () => {};
-  }
+function shouldSwap(cls) {
+  if (!cls.startsWith('pf-v5-')) return false;
+  const after = cls.slice('pf-v5-'.length);
+  return ALLOWED_AFTER_PREFIX.some(
+    p => after === p || after.startsWith(p + '-') || after.startsWith(p + '__')
+  );
+}
 
-  const swapClasses = (el) => {
-    if (!el || !el.classList) return;
-    const toAdd = [];
-    const toRemove = [];
-    el.classList.forEach((cls) => {
-      if (cls.startsWith('pf-v5-') && !denylist.has(cls)) {
-        toRemove.push(cls);
-        toAdd.push('pf-v6-' + cls.slice('pf-v5-'.length));
-      }
-    });
-    if (toRemove.length) {
-      toRemove.forEach((c) => el.classList.remove(c));
-      toAdd.forEach((c) => el.classList.add(c));
+function rewriteClassList(el) {
+  if (!el || !el.classList) return;
+  const toAdd = [], toRemove = [];
+  el.classList.forEach((cls) => {
+    if (shouldSwap(cls)) {
+      toRemove.push(cls);
+      toAdd.push('pf-v6-' + cls.slice('pf-v5-'.length));
     }
-  };
+  });
+  if (toRemove.length) {
+    toRemove.forEach(c => el.classList.remove(c));
+    toAdd.forEach(c => el.classList.add(c));
+  }
+}
 
-  const sweep = (root) => {
-    swapClasses(root);
-    root.querySelectorAll?.('[class*="pf-v5-"]').forEach(swapClasses);
-  };
+function sweep(root) {
+  if (!root) return;
+  rewriteClassList(root);
+  root.querySelectorAll?.('[class*="pf-v5-"]').forEach(rewriteClassList);
+}
 
-  // Initial pass on each root
+/**
+ * Enable PFv5→PFv6 class swapping scoped to:
+ *  - all provided roots (and their descendants)
+ *  - any PF modal/backdrop that appears (portaled to <body>)
+ *
+ * @param {(string|Element)[]} roots
+ * @returns {() => void} stop function
+ */
+export function enableScopedPfV5toV6Swap(roots = []) {
+  const rootEls = (Array.isArray(roots) ? roots : [roots])
+    .map(r => (typeof r === 'string' ? document.querySelector(r) : r))
+    .filter(Boolean);
+
+  // Initial sweep for each provided root
   rootEls.forEach(sweep);
 
-  // Live mode (MutationObserver) limited to those roots
-  if (!live) return () => {};
-
-  const observers = rootEls.map((root) => {
+  // Observe each provided root for dynamic changes
+  const rootObservers = rootEls.map(root => {
     const obs = new MutationObserver((muts) => {
       for (const m of muts) {
         if (m.type === 'attributes' && m.attributeName === 'class') {
-          swapClasses(m.target);
+          rewriteClassList(m.target);
         } else if (m.type === 'childList' && m.addedNodes?.length) {
-          m.addedNodes.forEach((n) => {
-            if (n.nodeType !== 1) return;
-            sweep(n);
+          m.addedNodes.forEach(n => {
+            if (n.nodeType === 1) sweep(n);
           });
         }
       }
     });
     obs.observe(root, {
-      childList: true,
-      subtree: true,
       attributes: true,
       attributeFilter: ['class'],
+      childList: true,
+      subtree: true,
     });
     return obs;
   });
 
-  // Stop function
-  return () => observers.forEach((o) => o.disconnect());
+  // Separate observer for PF modals/backdrops (portaled to <body>)
+  // We only rewrite inside the modal subtree, not globally.
+  const MODAL_SELECTOR = '.pf-v5-c-backdrop, .pf-v6-c-backdrop, .pf-v5-c-modal-box, .pf-v6-c-modal-box';
+
+  const bodyObserver = new MutationObserver((muts) => {
+    for (const m of muts) {
+      if (m.type === 'childList' && m.addedNodes?.length) {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType !== 1) return;
+          if (n.matches?.(MODAL_SELECTOR)) {
+            sweep(n);
+          } else {
+            // If a container was added that contains a modal, sweep those too
+            n.querySelectorAll?.(MODAL_SELECTOR).forEach(sweep);
+          }
+        });
+      }
+      if (m.type === 'attributes' && m.attributeName === 'class') {
+        const el = m.target;
+        if (el.matches?.(MODAL_SELECTOR)) rewriteClassList(el);
+      }
+    }
+  });
+  bodyObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  // Return stopper
+  return () => {
+    rootObservers.forEach(o => o.disconnect());
+    bodyObserver.disconnect();
+  };
 }
-
-
 
 
 /**

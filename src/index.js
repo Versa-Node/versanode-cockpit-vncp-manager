@@ -13,13 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const root = createRoot(appEl);
   root.render(<Application />);
 
-  // Swap ONLY inside this app’s root (and all its descendants)
-  // Denylist keeps special classes like pf-v5-svg intact.
-  const stopSwap = enableScopedPfV5toV6Swap(appEl, {
-    denylist: new Set(['pf-v5-svg']),
-    live: true, // keep observing React updates
-  });
-
-  // If you ever need to stop it:
-  // window.__stopPfSwap = stopSwap;
+   // Scope to your app root; modals are auto-handled via the body observer.
+  enableScopedPfV5toV6Swap([document.getElementById('app')]);
 });
