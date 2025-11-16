@@ -106,8 +106,8 @@ packaging/arch/PKGBUILD: packaging/arch/PKGBUILD.in
 packaging/debian/changelog: packaging/debian/changelog.in
 	sed 's/VERSION/$(VERSION)/' $< > $@
 
-$(DIST_TEST): $(COCKPIT_REPO_STAMP) $(shell find src/ -type f) package.json build.js
-	$(MAKE) package-lock.json && NODE_ENV=$(NODE_ENV) ./build.js
+$(DIST_TEST): $(COCKPIT_REPO_STAMP) $(NODE_MODULES_TEST) $(shell find src/ -type f) package.json build.js
+	NODE_ENV=$(NODE_ENV) ./build.js
 
 watch: $(NODE_MODULES_TEST)
 	NODE_ENV=$(NODE_ENV) ./build.js -w
@@ -213,10 +213,9 @@ test/reference: test/common
 # Note: Using regular npm install instead of custom node-modules system
 FORCE:
 $(NODE_MODULES_TEST): FORCE
-	@if [ ! -d node_modules ]; then \
+	@if [ ! -f package-lock.json ] || [ ! -d node_modules ] || [ package.json -nt package-lock.json ]; then \
 		echo "Installing dependencies with npm..."; \
 		npm install; \
 	fi
-	@touch $(NODE_MODULES_TEST)
 
 .PHONY: all clean install devel-install devel-uninstall print-version dist rpm prepare-check check vm print-vm
