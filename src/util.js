@@ -3,8 +3,10 @@ import React, { useContext } from "react";
 import cockpit from 'cockpit';
 
 import { debounce } from 'throttle-debounce';
-import * as dfnlocales from 'date-fns/locale';
 import { formatRelative } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+// Import locales individually to avoid module resolution issues
+// import * as dfnlocales from 'date-fns/locale';
 const _ = cockpit.gettext;
 
 export const DockerInfoContext = React.createContext();
@@ -198,8 +200,8 @@ export function truncate_id(id) {
 export function localize_time(unix_timestamp) {
     if (unix_timestamp === undefined || isNaN(unix_timestamp))
         return "";
-    const locale = (cockpit.language == "en") ? dfnlocales.enUS : dfnlocales[cockpit.language.replace('_', '')];
-    return formatRelative(unix_timestamp * 1000, Date.now(), { locale });
+    // Use English locale by default to avoid module resolution issues
+    return formatRelative(unix_timestamp * 1000, Date.now(), { locale: enUS });
 }
 
 export function format_cpu_usage(stats) {

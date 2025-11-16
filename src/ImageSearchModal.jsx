@@ -766,7 +766,7 @@ export const ImageSearchModal = ({ downloadImage }) => {
       position="top"
       variant="large"
       onClose={handleClose}
-      title={_("Search for an image")}
+      title={_("Search for an image22")}
       footer={
         <>
           <Form isHorizontal className="image-search-tag-form">
