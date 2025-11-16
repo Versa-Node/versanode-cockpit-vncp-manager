@@ -210,8 +210,13 @@ test/reference: test/common
 
 # We want tools/node-modules to run every time package-lock.json is requested
 # See https://www.gnu.org/software/make/manual/html_node/Force-Targets.html
+# Note: Using regular npm install instead of custom node-modules system
 FORCE:
-$(NODE_MODULES_TEST): FORCE tools/node-modules
-	./node-modules-fix.sh
+$(NODE_MODULES_TEST): FORCE
+	@if [ ! -d node_modules ]; then \
+		echo "Installing dependencies with npm..."; \
+		npm install; \
+	fi
+	@touch $(NODE_MODULES_TEST)
 
 .PHONY: all clean install devel-install devel-uninstall print-version dist rpm prepare-check check vm print-vm
