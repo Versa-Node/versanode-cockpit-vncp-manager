@@ -107,6 +107,8 @@ packaging/debian/changelog: packaging/debian/changelog.in
 	sed 's/VERSION/$(VERSION)/' $< > $@
 
 $(DIST_TEST): $(COCKPIT_REPO_STAMP) $(NODE_MODULES_TEST) $(shell find src/ -type f) package.json build.js
+	@echo "Building application..."
+	@if [ ! -d node_modules ]; then echo "Error: node_modules not found. Run 'npm install' first."; exit 1; fi
 	NODE_ENV=$(NODE_ENV) ./build.js
 
 watch: $(NODE_MODULES_TEST)
@@ -213,9 +215,13 @@ test/reference: test/common
 # Note: Using regular npm install instead of custom node-modules system
 FORCE:
 $(NODE_MODULES_TEST): FORCE
+	@echo "Checking node dependencies..."
 	@if [ ! -f package-lock.json ] || [ ! -d node_modules ] || [ package.json -nt package-lock.json ]; then \
 		echo "Installing dependencies with npm..."; \
 		npm install; \
+		echo "Dependencies installed successfully."; \
+	else \
+		echo "Dependencies are up to date."; \
 	fi
 
 .PHONY: all clean install devel-install devel-uninstall print-version dist rpm prepare-check check vm print-vm
