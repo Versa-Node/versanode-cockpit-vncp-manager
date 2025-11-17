@@ -30,22 +30,78 @@ function UniqueSlugger() {
 
 // --- INLINE PARSER ---
 // Supports: [text](url), ![alt](url "title"), `code`, **bold**, *emphasis*, _emphasis_,
-// ~~strike~~, raw autolink http(s)://..., mixes safely.
+// ~~strike~~, raw autolink http(s)://..., HTML <img> tags, mixes safely.
 function Inline({ text }) {
+  if (!text) return null;
+  
+  // First, let's handle HTML img tags by converting them to a special marker
+  let processedText = text;
+  const imgElements = [];
+  
+  processedText = processedText.replace(/<img\s+([^>]*?)\s*\/?>/gi, (match, attrs) => {
+    const srcMatch = attrs.match(/src\s*=\s*["']([^"']+)["']/i);
+    const altMatch = attrs.match(/alt\s*=\s*["']([^"']*)["']/i);
+    const titleMatch = attrs.match(/title\s*=\s*["']([^"']*)["']/i);
+    const widthMatch = attrs.match(/width\s*=\s*["']?([^"'\s>]+)["']?/i);
+    const heightMatch = attrs.match(/height\s*=\s*["']?([^"'\s>]+)["']?/i);
+    
+    const src = srcMatch ? srcMatch[1] : '';
+    const alt = altMatch ? altMatch[1] : '';
+    const title = titleMatch ? titleMatch[1] : '';
+    const width = widthMatch ? widthMatch[1] : '';
+    const height = heightMatch ? heightMatch[1] : '';
+    
+    if (src && (isHttpUrl(src) || isImageUrl(src))) {
+      const style = {
+        maxWidth: '100%',
+        height: 'auto'
+      };
+      
+      // Apply width/height if specified
+      if (width) {
+        style.width = width.includes('%') ? width : (width.includes('px') ? width : `${width}px`);
+      }
+      if (height) {
+        style.height = height.includes('%') ? height : (height.includes('px') ? height : `${height}px`);
+      }
+      
+      const imgElement = React.createElement('img', {
+        src: src,
+        alt: alt,
+        title: title || undefined,
+        loading: 'lazy',
+        className: 'md-img',
+        style: style
+      });
+      
+      const placeholder = `__HTML_IMG_${imgElements.length}__`;
+      imgElements.push(imgElement);
+      return placeholder;
+    }
+    
+    return match; // Keep original if not a valid image
+  });
+  
+  // Now process the rest with standard markdown
   const tokens = [];
   let i = 0;
 
   // Order matters (more specific first)
-  const rx =
-    /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)(?:\s+"([^"]*)")?\)|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*|~~([^~]+)~~|\*([^*]+)\*|_([^_]+)_|(https?:\/\/[^\s)]+)/g;
+  const rx = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+)(?:\s+"([^"]*)")?\)|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*|~~([^~]+)~~|\*([^*]+)\*|_([^_]+)_|(https?:\/\/[^\s)]+)|__HTML_IMG_(\d+)__/g;
 
   let m;
-  while ((m = rx.exec(text))) {
+  while ((m = rx.exec(processedText))) {
     const [full] = m;
-    if (m.index > i) tokens.push(text.slice(i, m.index));
+    if (m.index > i) tokens.push(processedText.slice(i, m.index));
 
-    if (m[1] && m[2]) {
-      // image
+    if (m[11] !== undefined) {
+      // HTML image placeholder
+      const imgIndex = parseInt(m[11]);
+      if (imgElements[imgIndex]) {
+        tokens.push(React.cloneElement(imgElements[imgIndex], { key: `html-img-${m.index}` }));
+      }
+    } else if (m[1] !== undefined && m[2]) {
+      // image ![alt](url "title")
       const alt = m[1];
       const url = m[2];
       const title = m[3];
@@ -112,7 +168,7 @@ function Inline({ text }) {
     }
     i = m.index + full.length;
   }
-  if (i < text.length) tokens.push(text.slice(i));
+  if (i < processedText.length) tokens.push(processedText.slice(i));
   return <>{tokens}</>;
 }
 

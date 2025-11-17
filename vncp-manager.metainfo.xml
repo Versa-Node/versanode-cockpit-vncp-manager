@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>vncp-manager</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>vncp-manager</name>
+  <summary>
+    Cockpit component for VNCP Docker containers
+  </summary>
+  <description>
+    <p>
+      The Cockpit user interface for Docker containers.
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">vncp-manager</launchable>
+</component>

@@ -1,6 +1,6 @@
 {
-  "name": "docker",
-  "description": "Cockpit UI for Docker Containers",
+  "name": "vncp-manager",
+  "description": "Cockpit UI for VNCP Docker Containers",
   "type": "module",
   "main": "index.js",
   "repository": "https://github.com/chabad360/cockpit-docker.git",

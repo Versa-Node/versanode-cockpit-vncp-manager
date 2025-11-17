@@ -10,7 +10,7 @@ TARFILE=$(RPM_NAME)-$(VERSION).tar.xz
 NODE_CACHE=$(RPM_NAME)-node-$(VERSION).tar.xz
 SPEC=$(RPM_NAME).spec
 PREFIX ?= /usr/local
-APPSTREAMFILE=me.chabad360.$(PACKAGE_NAME).metainfo.xml
+APPSTREAMFILE=$(PACKAGE_NAME).metainfo.xml
 VM_IMAGE=$(CURDIR)/test/images/$(TEST_OS)
 # stamp file to check for node_modules/
 NODE_MODULES_TEST=package-lock.json
@@ -174,7 +174,7 @@ $(VM_IMAGE): $(TARFILE) packaging/debian/rules packaging/debian/control packagin
 	# HACK for ostree images: skip the rpm build/install
 	if [ "$${TEST_OS%coreos}" != "$$TEST_OS" ] || [ "$${TEST_OS%bootc}" != "$$TEST_OS" ] || [ "$$TEST_OS" = "rhel4edge" ]; then \
 	    bots/image-customize --verbose --fresh --no-network --run-command 'mkdir -p /usr/local/share/cockpit' \
-	                         --upload dist/:/usr/local/share/cockpit/docker \
+	                         --upload dist/:/usr/local/share/cockpit/vncp-manager \
 	                         --script $(CURDIR)/test/vm.install $(TEST_OS); \
 	else \
 	    bots/image-customize --verbose --fresh $(VM_CUSTOMIZE_FLAGS) --build $(TARFILE) \

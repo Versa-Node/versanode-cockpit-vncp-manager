@@ -114,6 +114,14 @@
   height: auto;
   border-radius: 6px;
   margin: 8px 0;
+  display: block;
+}
+
+/* Allow inline images for smaller ones */
+.vncp-readme img[width*="px"],
+.vncp-readme img[width*="%"] {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .vncp-readme table {
