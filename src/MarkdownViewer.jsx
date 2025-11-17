@@ -1,9 +1,15 @@
-// ImprovedMarkdown.jsx (or replace your existing definitions)
+// Enhanced Markdown Viewer with improved README styling
 import React, { useMemo, useRef } from "react";
 import { OutlinedQuestionCircleIcon } from "@patternfly/react-icons";
+import "./MarkdownViewer.css";
 
 // --- utils ---
 const isHttpUrl = (s = "") => /^https?:\/\/[^\s)]+$/i.test(s);
+const isImageUrl = (url = "") => {
+  if (!url) return false;
+  // Support common image file extensions
+  return /\.(png|jpe?g|gif|webp|svg|bmp|tiff?|ico)(\?[^\s)]*)?$/i.test(url) || isHttpUrl(url);
+};
 const slugify = (s = "") =>
   s
     .toLowerCase()
@@ -43,7 +49,7 @@ function Inline({ text }) {
       const alt = m[1];
       const url = m[2];
       const title = m[3];
-      if (isHttpUrl(url)) {
+      if (isHttpUrl(url) || isImageUrl(url)) {
         tokens.push(
           <img
             key={`img-${m.index}`}
@@ -52,6 +58,12 @@ function Inline({ text }) {
             title={title || undefined}
             loading="lazy"
             className="md-img"
+            style={{ maxWidth: '100%', height: 'auto' }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              // Show alt text if image fails to load
+              e.target.insertAdjacentHTML('afterend', `<span style="color: #888; font-style: italic;">[Image: ${alt || 'Image failed to load'}]</span>`);
+            }}
           />
         );
       } else {
@@ -187,12 +199,12 @@ export function Markdown({
       if (!table) return;
       out.push(
         <div key={`tblwrap-${out.length}`} className="md-table-wrap">
-          <table className="pf-v6-c-table pf-m-compact md-table">
+          <table className="pf-v6-c-table pf-m-compact md-table" role="table">
             {table.header.length ? (
               <thead>
-                <tr>
+                <tr role="row">
                   {table.header.map((h, k) => (
-                    <th key={`th-${k}`}>
+                    <th key={`th-${k}`} role="columnheader">
                       <Inline text={h} />
                     </th>
                   ))}
@@ -201,9 +213,9 @@ export function Markdown({
             ) : null}
             <tbody>
               {table.rows.map((row, r) => (
-                <tr key={`tr-${r}`}>
+                <tr key={`tr-${r}`} role="row">
                   {row.map((cell, c) => (
-                    <td key={`td-${r}-${c}`}>
+                    <td key={`td-${r}-${c}`} role="cell">
                       <Inline text={cell} />
                     </td>
                   ))}
@@ -221,11 +233,39 @@ export function Markdown({
       const lang = fence.lang ? String(fence.lang).toLowerCase() : "";
       const cls = lang ? `language-${lang}` : undefined;
 
-      const handleCopy = async () => {
+      const handleCopy = async (e) => {
         try {
           await navigator.clipboard?.writeText(code);
-        } catch {
-          // noop
+          const btn = e.target;
+          const originalText = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.style.background = '#28a745';
+          btn.style.color = 'white';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        } catch (err) {
+          console.warn('Failed to copy code:', err);
+          // Fallback for older browsers
+          try {
+            const textArea = document.createElement('textarea');
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const btn = e.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+              btn.textContent = originalText;
+            }, 2000);
+          } catch (fallbackErr) {
+            console.warn('Fallback copy also failed:', fallbackErr);
+          }
         }
       };
 
@@ -234,8 +274,9 @@ export function Markdown({
           <button
             type="button"
             className="md-copy-btn"
-            aria-label="Copy code"
+            aria-label="Copy code to clipboard"
             onClick={handleCopy}
+            title="Copy to clipboard"
           >
             Copy
           </button>

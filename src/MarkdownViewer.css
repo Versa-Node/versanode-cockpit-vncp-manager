@@ -1,0 +1,259 @@
+/* Enhanced README markdown styling for VNCP */
+.vncp-readme {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  max-width: 100%;
+}
+
+.vncp-readme h1,
+.vncp-readme h2,
+.vncp-readme h3,
+.vncp-readme h4,
+.vncp-readme h5,
+.vncp-readme h6 {
+  margin: 24px 0 12px 0;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #1a1a1a;
+}
+
+.vncp-readme h1 {
+  font-size: 2rem;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 8px;
+}
+
+.vncp-readme h2 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 8px;
+}
+
+.vncp-readme h3 {
+  font-size: 1.25rem;
+}
+
+.vncp-readme h4 {
+  font-size: 1rem;
+}
+
+.vncp-readme h5 {
+  font-size: 0.875rem;
+}
+
+.vncp-readme h6 {
+  font-size: 0.85rem;
+  color: #6a737d;
+}
+
+.vncp-readme p {
+  margin-bottom: 16px;
+}
+
+.vncp-readme blockquote {
+  padding: 0 16px;
+  margin: 16px 0;
+  color: #6a737d;
+  border-left: 4px solid #dfe2e5;
+  background-color: #f6f8fa;
+  border-radius: 0 3px 3px 0;
+}
+
+.vncp-readme ul,
+.vncp-readme ol {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+
+.vncp-readme li {
+  margin-bottom: 4px;
+}
+
+.vncp-readme code {
+  padding: 2px 4px;
+  margin: 0;
+  font-size: 85%;
+  background-color: #f6f8fa;
+  border-radius: 3px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Monaco, Courier, monospace;
+}
+
+.vncp-readme pre {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.vncp-readme pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  display: inline;
+  max-width: auto;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+}
+
+.vncp-readme a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.vncp-readme a:hover {
+  text-decoration: underline;
+}
+
+.vncp-readme img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+.vncp-readme table {
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.vncp-readme table th,
+.vncp-readme table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+  text-align: left;
+}
+
+.vncp-readme table th {
+  font-weight: 600;
+  background-color: #f6f8fa;
+}
+
+.vncp-readme table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.vncp-readme hr {
+  height: 2px;
+  margin: 24px 0;
+  background-color: #e1e4e8;
+  border: 0;
+}
+
+.vncp-readme strong {
+  font-weight: 600;
+}
+
+.vncp-readme em {
+  font-style: italic;
+}
+
+.vncp-readme del {
+  text-decoration: line-through;
+}
+
+.vncp-readme .md-task {
+  list-style: none;
+  margin-left: -20px;
+}
+
+.vncp-readme .md-task input[type="checkbox"] {
+  margin-right: 8px;
+  margin-left: 0;
+}
+
+/* Copy button for code blocks */
+.md-codeblock {
+  position: relative;
+}
+
+.md-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d1d5da;
+  border-radius: 3px;
+  color: #586069;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.md-copy-btn:hover {
+  background: #f6f8fa;
+  border-color: #c6cbd1;
+}
+
+/* Table of contents styling */
+.md-toc {
+  background: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.md-toc__title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.md-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.md-toc li {
+  margin: 4px 0;
+}
+
+.md-toc .lv-1 { padding-left: 0; }
+.md-toc .lv-2 { padding-left: 16px; }
+.md-toc .lv-3 { padding-left: 32px; }
+.md-toc .lv-4 { padding-left: 48px; }
+.md-toc .lv-5 { padding-left: 64px; }
+.md-toc .lv-6 { padding-left: 80px; }
+
+.md-toc a {
+  color: #0366d6;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.md-toc a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .vncp-readme {
+    font-size: 14px;
+  }
+  
+  .vncp-readme h1 {
+    font-size: 1.6rem;
+  }
+  
+  .vncp-readme h2 {
+    font-size: 1.3rem;
+  }
+  
+  .vncp-readme pre {
+    padding: 12px;
+    font-size: 83%;
+  }
+  
+  .md-copy-btn {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
